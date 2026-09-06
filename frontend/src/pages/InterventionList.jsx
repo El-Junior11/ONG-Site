@@ -14,7 +14,7 @@ const InterventionList = () => {
     const [actionLoading, setActionLoading] = useState(false);
     const navigate = useNavigate();
 
-    // --- STATES HO AN'NY FORMULAIRE ---
+    // --- STATES FOR THE FORM ---
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [editingId, setEditingId] = useState(null);
     const [formData, setFormData] = useState({
@@ -27,16 +27,23 @@ const InterventionList = () => {
 
     const API_URL = 'http://localhost:5000/api/interventions';
 
-    // 1. Famakiana data avy ao amin'ny Backend Node.js
+    // 1. Fetch data from the Node.js backend
     const loadData = async () => {
         setLoading(true);
         try {
             const response = await fetch(API_URL);
+            
+            // Check if response is JSON to prevent JSON.parse syntax errors
+            const contentType = response.headers.get("content-type");
+            if (!contentType || !contentType.includes("application/json")) {
+                throw new Error("La réponse du serveur n'est pas au format JSON valide.");
+            }
+
             const data = await response.json();
             if (response.ok) {
                 setInterventions(data);
             } else {
-                Swal.fire('Erreur', 'Impossible de charger les données du serveur', 'error');
+                Swal.fire('Erreur', data.erreur || 'Impossible de charger les données du serveur', 'error');
             }
         } catch (err) {
             console.error("Erreur de chargement Backend:", err);
@@ -50,10 +57,10 @@ const InterventionList = () => {
         loadData();
     }, []);
 
-    // 2. Fivoahana (Logout tsotra)
+    // 2. Logout session
     const handleLogout = async () => {
         const result = await Swal.fire({
-            title: 'Etes-vous déconnecté ?',
+            title: 'Êtes-vous sûr de vouloir vous déconnecter ?',
             text: "Votre session sera fermée.",
             icon: 'question',
             showCancelButton: true,
@@ -68,7 +75,7 @@ const InterventionList = () => {
         }
     };
 
-    // 3. Famonoana (Delete) avy ao amin'ny Backend
+    // 3. Delete intervention from Backend
     const deleteIntervention = async (id) => {
         const result = await Swal.fire({
             title: 'Confirmation de suppression',
@@ -108,7 +115,7 @@ const InterventionList = () => {
         }
     };
 
-    // 4. Fanovana ny sata (Publication)
+    // 4. Toggle publication status
     const togglePublish = async (id, currentStatus) => {
         try {
             const response = await fetch(`${API_URL}/${id}/publish`, {
@@ -141,7 +148,7 @@ const InterventionList = () => {
         }
     };
 
-    // 5. Fitantanana ny Inputs ao amin'ny Formulaire
+    // 5. Form inputs management
     const handleInputChange = (e) => {
         const { name, value, type, checked } = e.target;
         setFormData({
@@ -150,15 +157,16 @@ const InterventionList = () => {
         });
     };
 
-    const handleEdit = (item) => {
+const handleEdit = (item) => {
         setEditingId(item.id);
-        const imageArray = Array.isArray(item.image) ? item.image : (item.image ? [item.image] : []);
+        // Raha avy ao amin'ny database izy dia alaina ny image_url
+        const existingImage = item.image_url ? [item.image_url] : [];
 
         setFormData({
             title: item.title || '',
             location: item.location || '',
             description: item.description || '',
-            image: imageArray,
+            image: existingImage,
             is_published: item.is_published || false
         });
         
@@ -183,12 +191,14 @@ const InterventionList = () => {
         setLoading(true);
 
         try {
+            const firstImage = Array.isArray(formData.image) && formData.image.length > 0 ? formData.image[0] : (formData.image || '');
+
             const payload = {
                 title: formData.title,
                 location: formData.location,
                 description: formData.description,
                 is_published: formData.is_published,
-                image: Array.isArray(formData.image) ? formData.image : [formData.image]
+                image_url: firstImage // <--- Ampifanarahana tsara amin'ny anaran'ny column ao amin'ny DB
             };
 
             let response;
@@ -216,7 +226,8 @@ const InterventionList = () => {
                 });
                 resetForm();
             } else {
-                Swal.fire('Erreur', 'Impossible d\'enregistrer les données', 'error');
+                const errorData = await response.json().catch(() => ({}));
+                Swal.fire('Erreur', errorData.erreur || 'Impossible d\'enregistrer les données', 'error');
             }
         } catch (err) {
             Swal.fire('Erreur technique', err.message, 'error');
@@ -225,7 +236,7 @@ const InterventionList = () => {
         } 
     };
 
-    // Alaina ho Base64 ilay sary
+    // Convert image to Base64
     const handleImageUpload = async (e) => {
         const files = Array.from(e.target.files || []);
         if (files.length === 0) return;
@@ -273,7 +284,7 @@ const InterventionList = () => {
     return (
         <div className="p-4 md:p-8 bg-[var(--paper)] min-h-screen font-body text-[var(--ink)]">
             
-            {/* EN-TÊTE */}
+            {/* HEADER */}
             <div className="flex flex-col md:flex-row justify-between items-center mb-10 bg-white p-6 rounded-3xl shadow-[0_4px_20px_rgba(11,79,134,0.06)] border border-[var(--paper-line)] gap-6">
                 <div className="flex items-center gap-4 text-left">
                     <div className="bg-gradient-to-br from-[var(--sky)] to-[var(--sky-bright)] p-4 rounded-2xl text-white shadow-lg shadow-[var(--sky)]/30">
@@ -281,7 +292,7 @@ const InterventionList = () => {
                     </div>
                     <div>
                         <h2 className="text-2xl md:text-3xl font-display font-extrabold text-[var(--ink)] tracking-tight">
-                            GESTION <span className="text-[var(--sky)]">INTERVENTIONS</span>
+                            GESTION DES <span className="text-[var(--sky)]">INTERVENTIONS</span>
                         </h2>
                         <p className="text-[var(--ink-soft)] font-mono-label font-bold text-xs uppercase tracking-wider flex items-center gap-2 mt-1">
                             <Info size={14} className="text-[var(--sky)]" />
@@ -331,7 +342,7 @@ const InterventionList = () => {
                 </div>
             </div>
 
-            {/* --- FORMULAIRE --- */}
+            {/* --- FORM --- */}
             {isFormOpen && (
                 <div className="mb-10 bg-white p-8 rounded-[2.5rem] shadow-[0_12px_32px_rgba(11,79,134,0.1)] border border-[var(--paper-line)]">
                     <div className="flex items-center gap-3 mb-8 text-left">
@@ -437,7 +448,7 @@ const InterventionList = () => {
                 </div>
             )}
 
-            {/* --- TABLEAU --- */}
+            {/* --- TABLE --- */}
             <div className="bg-white shadow-[0_4px_20px_rgba(11,79,134,0.06)] rounded-[2.5rem] overflow-hidden border border-[var(--paper-line)]">
                 <div className="overflow-x-auto">
                     <table className="min-w-full">

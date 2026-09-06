@@ -199,7 +199,8 @@ const Parametres = () => {
         e.preventDefault();
         setUploading(true);
         try {
-            let imageUrl = editingItem?.img || '';
+            // Raha tsy misy sary vaovao voafidy dia ampiasaina ilay sary taloha (raha manova) na tsisy
+            let imageUrl = editingItem?.img || editingItem?.image || '';
             if (formData.image) {
                 imageUrl = await handleImageConvert(formData.image);
             }
@@ -211,8 +212,10 @@ const Parametres = () => {
             };
 
             let response;
-            if (editingItem) {
-                response = await fetch(`${TEAM_API_URL}/${editingItem.id}`, {
+            const targetId = editingItem.id || editingItem._id; // Jereo ny ID
+
+            if (editingItem && targetId) {
+                response = await fetch(`${TEAM_API_URL}/${targetId}`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
@@ -328,7 +331,19 @@ const Parametres = () => {
                                                 <td className="px-6 py-4">
                                                     <div className="flex items-center gap-4">
                                                         <div className="w-12 h-12 rounded-2xl overflow-hidden border border-[var(--paper-line)] shadow-sm bg-[var(--paper)]">
-                                                            <img src={member.img || member.image_url || "https://ui-avatars.com/api/?name="+member.name} alt="" className="w-full h-full object-cover" />
+                                                            <img 
+                                                                src={
+                                                                    member.img || 
+                                                                    member.image || 
+                                                                    member.image_url || 
+                                                                    `https://ui-avatars.com/api/?name=${encodeURIComponent(member.name || "Membre")}&background=0b4f86&color=fff`
+                                                                } 
+                                                                alt={member.name} 
+                                                                className="w-full h-full object-cover" 
+                                                                onError={(e) => {
+                                                                    e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(member.name || "Membre")}&background=0b4f86&color=fff`;
+                                                                }}
+                                                            />
                                                         </div>
                                                         <span className="font-bold text-[var(--ink)] text-sm">{member.name}</span>
                                                     </div>

@@ -26,6 +26,29 @@ const teamController = {
         }
     },
 
+    async modifierMembre(req, res) {
+        try {
+            const { id } = req.params;
+            const { name, role, img } = req.body;
+
+            if (!name || !role) {
+                return res.status(400).json({ erreur: 'Le nom et le rôle sont obligatoires.' });
+            }
+
+            // Antsoina ilay Model handray ny fanovana (jereo raha TeamModel.modifier na TeamModel.mettreAJour no ampiasainao any amin'ny Model)
+            const membreModifie = await TeamModel.modifier(id, name, role, img);
+
+            if (!membreModifie) {
+                return res.status(404).json({ erreur: 'Membre introuvable.' });
+            }
+
+            res.json({ message: 'Membre modifié avec succès !', member: membreModifie });
+        } catch (erreur) {
+            console.error(erreur);
+            res.status(500).json({ erreur: 'Impossible de modifier le membre.' });
+        }
+    },
+
     async supprimerMembre(req, res) {
         try {
             const { id } = req.params;

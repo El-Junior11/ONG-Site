@@ -13,6 +13,13 @@ const TeamModel = {
         return rows[0];
     },
 
+    // <--- AMPIO ETO ITY FIASA ITY --->
+    async modifier(id, nom, role, imageUrl) {
+        const requete = 'UPDATE team_members SET name = $1, role = $2, image_url = $3 WHERE id = $4 RETURNING *';
+        const { rows } = await pool.query(requete, [nom, role, imageUrl, id]);
+        return rows[0];
+    },
+
     async supprimer(id) {
         const requete = 'DELETE FROM team_members WHERE id = $1 RETURNING *';
         const { rows } = await pool.query(requete, [id]);
