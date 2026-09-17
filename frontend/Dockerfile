@@ -1,18 +1,17 @@
-
 FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-COPY package*.json ./
+COPY package.json package-lock.json ./
 
-RUN npm install --include=dev
+RUN npm install
 
 COPY . .
 
 ARG VITE_API_URL=/api
 ENV VITE_API_URL=$VITE_API_URL
 
-RUN npm run build
+RUN ./node_modules/.bin/vite build
 
 FROM nginx:alpine
 
