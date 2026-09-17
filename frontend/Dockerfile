@@ -4,14 +4,20 @@ WORKDIR /app
 
 COPY package.json package-lock.json ./
 
-RUN npm install
+ENV NODE_ENV=development
+ENV NPM_CONFIG_PRODUCTION=false
+ENV NPM_CONFIG_OMIT=
+
+RUN npm ci --include=dev
+
+RUN ls -la node_modules/.bin && test -x node_modules/.bin/vite
 
 COPY . .
 
 ARG VITE_API_URL=/api
 ENV VITE_API_URL=$VITE_API_URL
 
-RUN ./node_modules/.bin/vite build
+RUN npm run build
 
 FROM nginx:alpine
 
