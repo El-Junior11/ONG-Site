@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
@@ -5,15 +6,13 @@ import {
     User, Mail, Lock, Camera, ShieldCheck, Eye, EyeOff 
 } from 'lucide-react';
 import Swal from 'sweetalert2';
+import api from '../api/axios';
 
-// 1. COMPONENT MITOKANA HO AN'NY ADMIN PROFILE (BACKEND)
 const AdminProfile = ({ adminUser, setAdminUser }) => {
     const [newEmail, setNewEmail] = useState(adminUser?.email || '');
     const [newPassword, setNewPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
-
-    const API_URL = 'http://localhost:5000/api/admin';
 
     useEffect(() => {
         if (adminUser?.email) setNewEmail(adminUser.email);
@@ -29,28 +28,24 @@ const AdminProfile = ({ adminUser, setAdminUser }) => {
                 ...(newPassword && { password: newPassword })
             };
 
-            const response = await fetch(API_URL, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
+            const response = await api.put('/admin', payload);
+            const data = response.data;
 
-            const data = await response.json();
-            if (response.ok) {
-                setAdminUser(data);
-                Swal.fire({ 
-                    title: 'Profil mis à jour !', 
-                    icon: 'success', 
-                    confirmButtonColor: '#0b4f86', 
-                    timer: 1500, 
-                    showConfirmButton: false 
-                });
-                setNewPassword('');
-            } else {
-                throw new Error(data.message || "Erreur lors de la mise à jour");
-            }
+            setAdminUser(data);
+            Swal.fire({ 
+                title: 'Profil mis à jour !', 
+                icon: 'success', 
+                confirmButtonColor: '#0b4f86', 
+                timer: 1500, 
+                showConfirmButton: false 
+            });
+            setNewPassword('');
         } catch (error) {
-            Swal.fire('Erreur', error.message, 'error');
+            Swal.fire(
+                'Erreur',
+                error.response?.data?.message || error.message || "Erreur lors de la mise à jour",
+                'error'
+            );
         } finally {
             setLoading(false);
         }
@@ -135,7 +130,6 @@ const AdminProfile = ({ adminUser, setAdminUser }) => {
     );
 };
 
-// 2. MAIN COMPONENT: PARAMETRES (BACKEND)
 const Parametres = () => {
     const [team, setTeam] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -146,46 +140,33 @@ const Parametres = () => {
     const [adminUser, setAdminUser] = useState(null);
 
     const navigate = useNavigate();
-    const TEAM_API_URL = 'http://localhost:5000/api/team';
-    const ADMIN_API_URL = 'http://localhost:5000/api/admin';
 
-    // Famakiana data ekipa avy ao amin'ny Backend
     const fetchTeam = useCallback(async () => {
         try {
             setLoading(true);
-            const response = await fetch(TEAM_API_URL);
-            if (response.ok) {
-                const data = await response.json();
-                setTeam(data);
-            } else {
-                console.error("Erreur de chargement des membres");
-            }
+            const response = await api.get('/team');
+            setTeam(response.data);
         } catch (err) {
             console.error("Error loading team:", err);
         } finally {
             setLoading(false);
         }
-    }, [TEAM_API_URL]);
+    }, []);
 
-    // Famakiana data admin avy ao amin'ny Backend
     const fetchAdmin = useCallback(async () => {
         try {
-            const response = await fetch(ADMIN_API_URL);
-            if (response.ok) {
-                const data = await response.json();
-                setAdminUser(data);
-            }
+            const response = await api.get('/admin');
+            setAdminUser(response.data);
         } catch (err) {
             console.error("Error loading admin info:", err);
         }
-    }, [ADMIN_API_URL]);
+    }, []);
 
     useEffect(() => {
         fetchAdmin();
         fetchTeam();
     }, [fetchAdmin, fetchTeam]);
 
-    // Ovaina ho Base64 ilay sary mba handefasana azy any amin'ny API
     const handleImageConvert = (file) => {
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
@@ -199,7 +180,6 @@ const Parametres = () => {
         e.preventDefault();
         setUploading(true);
         try {
-            // Raha tsy misy sary vaovao voafidy dia ampiasaina ilay sary taloha (raha manova) na tsisy
             let imageUrl = editingItem?.img || editingItem?.image || '';
             if (formData.image) {
                 imageUrl = await handleImageConvert(formData.image);
@@ -211,34 +191,30 @@ const Parametres = () => {
                 img: imageUrl
             };
 
-            let response;
-            const targetId = editingItem.id || editingItem._id; // Jereo ny ID
+            const targetId = editingItem?.id || editingItem?._id;
 
             if (editingItem && targetId) {
-                response = await fetch(`${TEAM_API_URL}/${targetId}`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
+                await api.put(`/team/${targetId}`, payload);
             } else {
-                response = await fetch(TEAM_API_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
+                await api.post('/team', payload);
             }
 
-            if (response.ok) {
-                await fetchTeam();
-                Swal.fire({ icon: 'success', title: 'Action réussie !', showConfirmButton: false, timer: 1500 });
-                setIsModalOpen(false);
-                setEditingItem(null);
-                setFormData({ name: '', role: '', image: null });
-            } else {
-                throw new Error("Erreur lors de l'enregistrement");
-            }
+            await fetchTeam();
+            Swal.fire({ 
+                icon: 'success', 
+                title: 'Action réussie !', 
+                showConfirmButton: false, 
+                timer: 1500 
+            });
+            setIsModalOpen(false);
+            setEditingItem(null);
+            setFormData({ name: '', role: '', image: null });
         } catch (err) {
-            Swal.fire('Erreur', err.message, 'error');
+            Swal.fire(
+                'Erreur',
+                err.response?.data?.message || err.message || "Erreur lors de l'enregistrement",
+                'error'
+            );
         } finally {
             setUploading(false);
         }
@@ -259,23 +235,21 @@ const Parametres = () => {
 
         if (result.isConfirmed) {
             try {
-                const response = await fetch(`${TEAM_API_URL}/${id}`, {
-                    method: 'DELETE'
-                });
+                await api.delete(`/team/${id}`);
 
-                if (response.ok) {
-                    setTeam(team.filter(member => member.id !== id));
-                    Swal.fire({
-                        title: 'Supprimé !',
-                        icon: 'success',
-                        timer: 1000,
-                        showConfirmButton: false
-                    });
-                } else {
-                    throw new Error("Erreur lors de la suppression");
-                }
+                setTeam(team.filter(member => member.id !== id));
+                Swal.fire({
+                    title: 'Supprimé !',
+                    icon: 'success',
+                    timer: 1000,
+                    showConfirmButton: false
+                });
             } catch (err) {
-                Swal.fire('Erreur', err.message, 'error');
+                Swal.fire(
+                    'Erreur',
+                    err.response?.data?.message || err.message || "Erreur lors de la suppression",
+                    'error'
+                );
             }
         }
     };
@@ -298,7 +272,6 @@ const Parametres = () => {
             </div>
 
             <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8">
-                {/* TAHADIR EKIPA (TEAM LIST) */}
                 <div className="lg:col-span-8 space-y-6">
                     <div className="bg-white rounded-[2.5rem] border border-[var(--paper-line)] shadow-[0_10px_30px_rgba(11,79,134,0.08)] overflow-hidden">
                         <div className="p-6 border-b border-[var(--paper-line)] flex justify-between items-center bg-[var(--paper)]/50">
@@ -385,13 +358,11 @@ const Parametres = () => {
                     </div>
                 </div>
 
-                {/* ADMIN PROFILE SECTION */}
                 <div className="lg:col-span-4">
                     <AdminProfile adminUser={adminUser} setAdminUser={setAdminUser} />
                 </div>
             </div>
 
-            {/* MODAL FOMBA FANAMPIANA/FANAMPIANA MEMBRE */}
             {isModalOpen && (
                 <div className="fixed inset-0 bg-[var(--ink)]/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
                     <div className="bg-white w-full max-w-lg rounded-[2.5rem] p-8 md:p-10 shadow-2xl border border-[var(--paper-line)] animate-in fade-in zoom-in duration-300 text-[var(--ink)]">

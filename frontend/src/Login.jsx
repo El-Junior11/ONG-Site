@@ -1,7 +1,9 @@
+
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import Swal from "sweetalert2";
 import { Mail, Lock, Eye, EyeOff, ShieldCheck, LogIn, KeyRound } from 'lucide-react';
+import api from '../api/axios';
 
 function Login() {
     const [email, setEmail] = useState('');
@@ -10,13 +12,11 @@ function Login() {
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     
-    // States ho an'ny OTP / Famaivanana Password
     const [step, setStep] = useState(1);
     const [otp, setOtp] = useState('');
     
     const navigate = useNavigate();
 
-    // Toast configuration kanto (SweetAlert2)
     const Toast = Swal.mixin({
         toast: true,
         position: 'top-end',
@@ -29,25 +29,29 @@ function Login() {
         }
     });
 
-    // 1. Fidirana Admin tena izy mifandray amin'ny Backend Node.js
     const handleLogin = async (e) => {
         e.preventDefault();
         setError('');
         setIsLoading(true);
 
         try {
-            const response = await fetch('http://localhost:5000/api/auth/login', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ email, password }),
+            const response = await api.post('/auth/login', {
+                email,
+                password
             });
 
-            const data = await response.json();
+            const data = response.data;
             setIsLoading(false);
 
-            if (response.ok) {
+            if (response.status >= 200 && response.status < 300) {
+                if (data.token) {
+                    localStorage.setItem('token', data.token);
+                }
+
+                if (data.user) {
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                }
+
                 Toast.fire({
                     icon: 'success',
                     title: 'Connexion réussie ! Bienvenue dans l’espace administrateur.'
@@ -70,16 +74,21 @@ function Login() {
         } catch (err) {
             setIsLoading(false);
             console.error("Olana tamin'ny serveur:", err);
-            setError("Tsy tafiditra: Tsy mifandray amin'ny serveur backend.");
+
+            const message = err.response?.data?.erreur || 
+                err.response?.data?.message || 
+                "Tsy tafiditra: Tsy mifandray amin'ny serveur backend.";
+
+            setError(message);
+
             Toast.fire({
                 icon: 'error',
                 title: 'Erreur serveur',
-                text: 'Impossible de joindre le serveur backend.'
+                text: message
             });
         }
     };
 
-    // 2. Fandefasana ny kaody (OTP)
     const handleSendCode = () => {
         if (!email) {
             Toast.fire({
@@ -109,7 +118,6 @@ function Login() {
         }, 1200);
     };
     
-    // 3. Hanamarinana ny kaody OTP
     const handleVerifyCode = (e) => {
         e.preventDefault();
         if (!otp) return;
@@ -140,7 +148,6 @@ function Login() {
         <div className="min-h-screen w-full flex items-center justify-center bg-[var(--paper)] overflow-hidden p-4 font-body">
             <div className="flex flex-col lg:flex-row w-full max-w-md lg:max-w-4xl bg-white rounded-[2.5rem] shadow-[0_10px_30px_rgba(11,79,134,0.08)] overflow-hidden border border-[var(--paper-line)]">
                 
-                {/* 1. ANKAVIA: SARY / ILUSTRATION */}
                 <div className="w-full lg:w-1/2 relative bg-[var(--sky-ice)] flex items-center justify-center border-b lg:border-b-0 lg:border-r border-[var(--paper-line)] h-56 sm:h-64 lg:h-[32rem] overflow-hidden">
                     <img 
                         src="/Logo TAF 3D.png" 
@@ -151,7 +158,6 @@ function Login() {
                     <div className="absolute inset-0 bg-gradient-to-t from-[var(--ink)]/30 via-transparent to-transparent"></div>
                 </div>
     
-                {/* 2. ANKAVANANA: FORMULAIRE */}
                 <div className="w-full lg:w-1/2 flex items-center justify-center p-8 lg:p-12 bg-white">
                     <div className="w-full max-w-xs space-y-6 text-left">
                         
@@ -175,7 +181,6 @@ function Login() {
                             </div>
                         )}
     
-                        {/* STEP 1: LOGIN NORMAL */}
                         {step === 1 ? (
                             <form onSubmit={handleLogin} className="space-y-4">
                                 <div className="space-y-1.5">
@@ -240,7 +245,6 @@ function Login() {
                                 </button>
                             </form>
                         ) : (
-                            /* STEP 2: VERIFICATION CODE OTP */
                             <form onSubmit={handleVerifyCode} className="space-y-4">
                                 <div className="space-y-1.5">
                                     <label className="text-[10px] font-mono-label font-bold text-[var(--ink)] uppercase tracking-widest ml-1 text-center block">

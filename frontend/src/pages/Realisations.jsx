@@ -1,21 +1,23 @@
+
 import React, { useEffect, useState, useCallback } from 'react';
 import { Camera, Sparkles, MapPin, Layers, Loader2 } from 'lucide-react';
+import api from '../api/axios';
 
 const Realisations = () => {
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    const API_URL = 'http://localhost:5000/api/interventions';
-
     const fetchRealisations = useCallback(async () => {
         setLoading(true);
         try {
-            const response = await fetch(API_URL);
+            const response = await api.get('/interventions');
             let result = [];
 
-            if (response.ok) {
-                const allInterventions = await response.json();
-                result = allInterventions.filter(item => item.is_published === true || item.is_published === 1);
+            if (response.status >= 200 && response.status < 300) {
+                const allInterventions = response.data;
+                result = allInterventions.filter(
+                    item => item.is_published === true || item.is_published === 1
+                );
             } else {
                 result = [
                     {
@@ -80,7 +82,7 @@ const Realisations = () => {
         } finally {
             setLoading(false);
         }
-    }, [API_URL]);
+    }, []);
 
     useEffect(() => {
         fetchRealisations();
@@ -89,7 +91,6 @@ const Realisations = () => {
     return (
         <div className="bg-[var(--paper)] font-body text-[var(--ink)] overflow-x-hidden">
             
-            {/* SECTION 1: En-tête compact et moderne */}
             <section className="pt-4 pb-4 px-6 md:px-12 bg-[var(--paper)] border-b border-[var(--paper-line)]">
                 <div className="max-w-7xl mx-auto text-left space-y-1.5">
                     <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-[var(--sky-ice)] text-[var(--sky-deep)] font-mono-label font-bold text-[10px] uppercase tracking-[0.2em] rounded-full border border-[var(--sky)]/25">
@@ -104,7 +105,6 @@ const Realisations = () => {
                 </div>
             </section>
 
-            {/* SECTION 2: Animation Scroll Section */}
             <section className="py-6 md:py-8 bg-[var(--paper)] relative">
                 <div className="max-w-7xl mx-auto px-6 md:px-12 mb-6 flex items-center justify-between">
                     <div className="flex items-center gap-2.5 text-[var(--sky)] font-mono-label font-bold uppercase tracking-widest text-[10px] bg-[var(--sky-ice)] px-3.5 py-1.5 rounded-xl border border-[var(--paper-line)] shadow-sm">

@@ -7,6 +7,7 @@ import {
     Image as ImageIcon, AlignLeft, Eye, EyeOff, Loader2,
     Info
 } from 'lucide-react';
+import api from '../api/axios';
 
 const InterventionList = () => {
     const [interventions, setInterventions] = useState([]);
@@ -14,7 +15,6 @@ const InterventionList = () => {
     const [actionLoading, setActionLoading] = useState(false);
     const navigate = useNavigate();
 
-    // --- STATES FOR THE FORM ---
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [editingId, setEditingId] = useState(null);
     const [formData, setFormData] = useState({
@@ -25,26 +25,11 @@ const InterventionList = () => {
         is_published: false
     });
 
-    const API_URL = 'http://localhost:5000/api/interventions';
-
-    // 1. Fetch data from the Node.js backend
     const loadData = async () => {
         setLoading(true);
         try {
-            const response = await fetch(API_URL);
-            
-            // Check if response is JSON to prevent JSON.parse syntax errors
-            const contentType = response.headers.get("content-type");
-            if (!contentType || !contentType.includes("application/json")) {
-                throw new Error("La réponse du serveur n'est pas au format JSON valide.");
-            }
-
-            const data = await response.json();
-            if (response.ok) {
-                setInterventions(data);
-            } else {
-                Swal.fire('Erreur', data.erreur || 'Impossible de charger les données du serveur', 'error');
-            }
+            const response = await api.get('/interventions');
+            setInterventions(response.data);
         } catch (err) {
             console.error("Erreur de chargement Backend:", err);
             Swal.fire('Erreur', 'Impossible de joindre le serveur backend', 'error');
@@ -57,7 +42,6 @@ const InterventionList = () => {
         loadData();
     }, []);
 
-    // 2. Logout session
     const handleLogout = async () => {
         const result = await Swal.fire({
             title: 'Êtes-vous sûr de vouloir vous déconnecter ?',
@@ -75,7 +59,6 @@ const InterventionList = () => {
         }
     };
 
-    // 3. Delete intervention from Backend
     const deleteIntervention = async (id) => {
         const result = await Swal.fire({
             title: 'Confirmation de suppression',
@@ -91,64 +74,49 @@ const InterventionList = () => {
         if (result.isConfirmed) {
             setActionLoading(true);
             try {
-                const response = await fetch(`${API_URL}/${id}`, {
-                    method: 'DELETE',
+                await api.delete(`/interventions/${id}`);
+                setInterventions(interventions.filter(item => item.id !== id));
+                Swal.fire({
+                    title: 'Supprimé !',
+                    text: "L'intervention a été retirée avec succès.",
+                    icon: 'success',
+                    timer: 1500,
+                    showConfirmButton: false
                 });
-
-                if (response.ok) {
-                    setInterventions(interventions.filter(item => item.id !== id));
-                    Swal.fire({
-                        title: 'Supprimé !',
-                        text: "L'intervention a été retirée avec succès.",
-                        icon: 'success',
-                        timer: 1500,
-                        showConfirmButton: false
-                    });
-                } else {
-                    Swal.fire('Erreur', 'Erreur lors de la suppression', 'error');
-                }
             } catch (err) {
-                Swal.fire('Erreur', 'Erreur de connexion au serveur', 'error');
+                Swal.fire('Erreur', 'Erreur lors de la suppression', 'error');
             } finally {
                 setActionLoading(false);
             }
         }
     };
 
-    // 4. Toggle publication status
     const togglePublish = async (id, currentStatus) => {
         try {
-            const response = await fetch(`${API_URL}/${id}/publish`, {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ is_published: !currentStatus })
+            await api.patch(`/interventions/${id}/publish`, {
+                is_published: !currentStatus
             });
 
-            if (response.ok) {
-                setInterventions(interventions.map(item => {
-                    if (item.id === id) {
-                        return { ...item, is_published: !currentStatus };
-                    }
-                    return item;
-                }));
+            setInterventions(interventions.map(item => {
+                if (item.id === id) {
+                    return { ...item, is_published: !currentStatus };
+                }
+                return item;
+            }));
 
-                Swal.fire({
-                    title: !currentStatus ? 'Publication réussie !' : 'Mis en brouillon',
-                    icon: 'success',
-                    timer: 1500,
-                    showConfirmButton: false,
-                    toast: true,
-                    position: 'top-end'
-                });
-            } else {
-                Swal.fire('Erreur', 'Erreur de mise à jour', 'error');
-            }
+            Swal.fire({
+                title: !currentStatus ? 'Publication réussie !' : 'Mis en brouillon',
+                icon: 'success',
+                timer: 1500,
+                showConfirmButton: false,
+                toast: true,
+                position: 'top-end'
+            });
         } catch (err) {
-            Swal.fire('Erreur', 'Erreur de connexion au serveur', 'error');
+            Swal.fire('Erreur', 'Erreur de mise à jour', 'error');
         }
     };
 
-    // 5. Form inputs management
     const handleInputChange = (e) => {
         const { name, value, type, checked } = e.target;
         setFormData({
@@ -157,9 +125,8 @@ const InterventionList = () => {
         });
     };
 
-const handleEdit = (item) => {
+    const handleEdit = (item) => {
         setEditingId(item.id);
-        // Raha avy ao amin'ny database izy dia alaina ny image_url
         const existingImage = item.image_url ? [item.image_url] : [];
 
         setFormData({
@@ -191,57 +158,51 @@ const handleEdit = (item) => {
         setLoading(true);
 
         try {
-            const firstImage = Array.isArray(formData.image) && formData.image.length > 0 ? formData.image[0] : (formData.image || '');
+            const firstImage = Array.isArray(formData.image) && formData.image.length > 0
+                ? formData.image[0]
+                : (formData.image || '');
 
             const payload = {
                 title: formData.title,
                 location: formData.location,
                 description: formData.description,
                 is_published: formData.is_published,
-                image_url: firstImage // <--- Ampifanarahana tsara amin'ny anaran'ny column ao amin'ny DB
+                image_url: firstImage
             };
 
-            let response;
             if (editingId) {
-                response = await fetch(`${API_URL}/${editingId}`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
+                await api.put(`/interventions/${editingId}`, payload);
             } else {
-                response = await fetch(API_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
+                await api.post('/interventions', payload);
             }
 
-            if (response.ok) {
-                await loadData();
-                Swal.fire({ 
-                    title: editingId ? 'Modification réussie' : 'Enregistré avec succès !', 
-                    icon: 'success', 
-                    timer: 1500, 
-                    showConfirmButton: false 
-                });
-                resetForm();
-            } else {
-                const errorData = await response.json().catch(() => ({}));
-                Swal.fire('Erreur', errorData.erreur || 'Impossible d\'enregistrer les données', 'error');
-            }
+            await loadData();
+
+            Swal.fire({ 
+                title: editingId ? 'Modification réussie' : 'Enregistré avec succès !', 
+                icon: 'success', 
+                timer: 1500, 
+                showConfirmButton: false 
+            });
+
+            resetForm();
         } catch (err) {
-            Swal.fire('Erreur technique', err.message, 'error');
+            Swal.fire(
+                'Erreur technique',
+                err.response?.data?.erreur || err.message,
+                'error'
+            );
         } finally {
             setLoading(false);
         } 
     };
 
-    // Convert image to Base64
     const handleImageUpload = async (e) => {
         const files = Array.from(e.target.files || []);
         if (files.length === 0) return;
     
         const allAreImages = files.every(file => file.type.startsWith('image/'));
+
         if (!allAreImages) {
             Swal.fire('Erreur', 'Veuillez sélectionner uniquement des fichiers images.', 'error');
             return;
@@ -284,7 +245,7 @@ const handleEdit = (item) => {
     return (
         <div className="p-4 md:p-8 bg-[var(--paper)] min-h-screen font-body text-[var(--ink)]">
             
-            {/* HEADER */}
+            {/* Header */}
             <div className="flex flex-col md:flex-row justify-between items-center mb-10 bg-white p-6 rounded-3xl shadow-[0_4px_20px_rgba(11,79,134,0.06)] border border-[var(--paper-line)] gap-6">
                 <div className="flex items-center gap-4 text-left">
                     <div className="bg-gradient-to-br from-[var(--sky)] to-[var(--sky-bright)] p-4 rounded-2xl text-white shadow-lg shadow-[var(--sky)]/30">
@@ -302,28 +263,20 @@ const handleEdit = (item) => {
                 </div>
         
                 <div className="flex items-center gap-3 bg-[var(--paper)] p-2 rounded-3xl border border-[var(--paper-line)]">
-                    <button 
-                        onClick={loadData}
-                        className="p-3 text-[var(--ink-soft)] hover:text-[var(--sky)] hover:bg-white rounded-2xl transition-all"
-                        title="Actualiser"
-                    >
+                    <button onClick={loadData} className="p-3 text-[var(--ink-soft)] hover:text-[var(--sky)] hover:bg-white rounded-2xl transition-all" title="Actualiser">
                         <RefreshCcw size={22} className={loading ? 'animate-spin' : ''} />
                     </button>
 
-                    <Link 
-                        to="/settings" 
-                        className="p-3 text-[var(--ink-soft)] hover:text-[var(--sky)] hover:bg-white rounded-2xl transition-all"
-                        title="Paramètres"
-                    >
+                    <Link to="/settings" className="p-3 text-[var(--ink-soft)] hover:text-[var(--sky)] hover:bg-white rounded-2xl transition-all" title="Paramètres">
                         <Settings size={22} /> 
                     </Link>
 
                     <button 
-                        onClick={() => { if(isFormOpen) resetForm(); else setIsFormOpen(true); }}
+                        onClick={() => isFormOpen ? resetForm() : setIsFormOpen(true)}
                         className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-mono-label font-bold uppercase text-xs tracking-wider transition-all shadow-lg ${
                             isFormOpen 
                             ? 'bg-[var(--paper-line)] text-[var(--ink)] hover:bg-slate-200' 
-                            : 'bg-gradient-to-r from-[var(--sky)] to-[var(--sky-bright)] text-white hover:shadow-[var(--sky)]/40 shadow-[var(--sky)]/30'
+                            : 'bg-gradient-to-r from-[var(--sky)] to-[var(--sky-bright)] text-white shadow-[var(--sky)]/30'
                         }`}
                     >
                         {isFormOpen ? <X size={20} /> : <PlusCircle size={20} />}
@@ -332,17 +285,13 @@ const handleEdit = (item) => {
 
                     <div className="w-px h-8 bg-[var(--paper-line)] mx-1"></div>
 
-                    <button 
-                        onClick={handleLogout}
-                        className="p-3 bg-red-50 text-red-500 rounded-2xl hover:bg-red-500 hover:text-white transition-all"
-                        title="Déconnexion"
-                    >
+                    <button onClick={handleLogout} className="p-3 bg-red-50 text-red-500 rounded-2xl hover:bg-red-500 hover:text-white transition-all" title="Déconnexion">
                         <LogOut size={22} />
                     </button>
                 </div>
             </div>
 
-            {/* --- FORM --- */}
+            {/* Form */}
             {isFormOpen && (
                 <div className="mb-10 bg-white p-8 rounded-[2.5rem] shadow-[0_12px_32px_rgba(11,79,134,0.1)] border border-[var(--paper-line)]">
                     <div className="flex items-center gap-3 mb-8 text-left">
@@ -359,7 +308,10 @@ const handleEdit = (item) => {
                                     <Type size={18} className="text-[var(--sky)]" /> Titre du projet
                                 </label>
                                 <input 
-                                    required name="title" value={formData.title} onChange={handleInputChange}
+                                    required
+                                    name="title"
+                                    value={formData.title}
+                                    onChange={handleInputChange}
                                     placeholder="Ex: Distribution de kits scolaires..."
                                     className="w-full p-4 bg-[var(--paper)] border-2 border-[var(--paper-line)] rounded-2xl text-[var(--ink)] focus:border-[var(--sky)] outline-none transition-all font-medium text-sm"
                                 />
@@ -370,7 +322,10 @@ const handleEdit = (item) => {
                                     <MapPin size={18} className="text-[var(--sky)]" /> Localisation
                                 </label>
                                 <input 
-                                    required name="location" value={formData.location} onChange={handleInputChange}
+                                    required
+                                    name="location"
+                                    value={formData.location}
+                                    onChange={handleInputChange}
                                     placeholder="Ex: Antananarivo, Madagascar"
                                     className="w-full p-4 bg-[var(--paper)] border-2 border-[var(--paper-line)] rounded-2xl text-[var(--ink)] focus:border-[var(--sky)] outline-none transition-all font-medium text-sm"
                                 />
@@ -389,10 +344,7 @@ const handleEdit = (item) => {
                                         onChange={handleImageUpload} 
                                         className="hidden" 
                                     />
-                                    <label 
-                                        htmlFor="file-upload"
-                                        className="flex items-center justify-center gap-3 w-full p-4 bg-[var(--paper)] border-2 border-dashed border-[var(--paper-line)] rounded-2xl cursor-pointer hover:border-[var(--sky)] transition-all"
-                                    >
+                                    <label htmlFor="file-upload" className="flex items-center justify-center gap-3 w-full p-4 bg-[var(--paper)] border-2 border-dashed border-[var(--paper-line)] rounded-2xl cursor-pointer hover:border-[var(--sky)] transition-all">
                                         {actionLoading ? (
                                             <Loader2 className="animate-spin text-[var(--sky)]" size={24} />
                                         ) : (
@@ -416,14 +368,20 @@ const handleEdit = (item) => {
                                     <AlignLeft size={18} className="text-[var(--sky)]" /> Description
                                 </label>
                                 <textarea 
-                                    required name="description" value={formData.description} onChange={handleInputChange} rows="5"
+                                    required
+                                    name="description"
+                                    value={formData.description}
+                                    onChange={handleInputChange}
+                                    rows="5"
                                     placeholder="Détails de l'intervention..."
                                     className="w-full p-4 bg-[var(--paper)] border-2 border-[var(--paper-line)] rounded-2xl text-[var(--ink)] focus:border-[var(--sky)] outline-none transition-all resize-none font-medium text-sm"
                                 ></textarea>
                             </div>
 
                             <div className="flex flex-col md:flex-row items-center gap-4">
-                                <div className={`flex-1 flex items-center justify-between p-4 rounded-2xl border-2 transition-all w-full ${formData.is_published ? 'bg-[var(--sky-ice)] border-[var(--sky)]' : 'bg-[var(--paper)] border-[var(--paper-line)]'}`}>
+                                <div className={`flex-1 flex items-center justify-between p-4 rounded-2xl border-2 transition-all w-full ${
+                                    formData.is_published ? 'bg-[var(--sky-ice)] border-[var(--sky)]' : 'bg-[var(--paper)] border-[var(--paper-line)]'
+                                }`}>
                                     <div className="flex items-center gap-3">
                                         <div className={`p-2 rounded-lg ${formData.is_published ? 'bg-[var(--sky)] text-white' : 'bg-white text-[var(--ink-soft)]'}`}>
                                             {formData.is_published ? <Eye size={20} /> : <EyeOff size={20} />}
@@ -433,12 +391,19 @@ const handleEdit = (item) => {
                                         </span>
                                     </div>
                                     <input 
-                                        type="checkbox" name="is_published" checked={formData.is_published} onChange={handleInputChange}
+                                        type="checkbox"
+                                        name="is_published"
+                                        checked={formData.is_published}
+                                        onChange={handleInputChange}
                                         className="w-6 h-6 accent-[var(--sky)] cursor-pointer"
                                     />
                                 </div>
 
-                                <button type="submit" disabled={actionLoading} className="w-full py-4 bg-gradient-to-r from-[var(--sky)] to-[var(--sky-bright)] text-white rounded-2xl font-mono-label font-bold uppercase text-xs tracking-widest shadow-xl shadow-[var(--sky)]/30 hover:shadow-2xl transition-all flex items-center justify-center gap-3">
+                                <button
+                                    type="submit"
+                                    disabled={actionLoading}
+                                    className="w-full py-4 bg-gradient-to-r from-[var(--sky)] to-[var(--sky-bright)] text-white rounded-2xl font-mono-label font-bold uppercase text-xs tracking-widest shadow-xl shadow-[var(--sky)]/30 hover:shadow-2xl transition-all flex items-center justify-center gap-3"
+                                >
                                     {actionLoading ? <Loader2 className="animate-spin" /> : <Save size={22} />}
                                     {editingId ? 'METTRE À JOUR' : 'ENREGISTRER'}
                                 </button>
@@ -448,7 +413,7 @@ const handleEdit = (item) => {
                 </div>
             )}
 
-            {/* --- TABLE --- */}
+            {/* Table */}
             <div className="bg-white shadow-[0_4px_20px_rgba(11,79,134,0.06)] rounded-[2.5rem] overflow-hidden border border-[var(--paper-line)]">
                 <div className="overflow-x-auto">
                     <table className="min-w-full">
@@ -460,13 +425,16 @@ const handleEdit = (item) => {
                                 <th className="px-8 py-6 text-center">Actions</th>
                             </tr>
                         </thead>
+
                         <tbody className="divide-y divide-[var(--paper-line)]">
                             {loading && !isFormOpen ? (
                                 <tr>
                                     <td colSpan="4" className="px-8 py-32 text-center">
                                         <div className="flex flex-col items-center gap-4">
                                             <div className="w-16 h-16 border-4 border-[var(--paper-line)] border-t-[var(--sky)] rounded-full animate-spin"></div>
-                                            <span className="font-mono-label font-bold text-[var(--ink-soft)] uppercase text-xs">Chargement...</span>
+                                            <span className="font-mono-label font-bold text-[var(--ink-soft)] uppercase text-xs">
+                                                Chargement...
+                                            </span>
                                         </div>
                                     </td>
                                 </tr>
@@ -476,9 +444,11 @@ const handleEdit = (item) => {
                                         <td className="px-8 py-6">
                                             <div className="relative w-20 h-20 overflow-hidden rounded-2xl shadow-sm border border-[var(--paper-line)]">
                                                 <img 
-                                                    src={(item.image && Array.isArray(item.image) && item.image.length > 0) 
-                                                        ? item.image[0] 
-                                                        : (item.image_url ? item.image_url : "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?q=80&w=300&h=300&fit=crop")} 
+                                                    src={
+                                                        (item.image && Array.isArray(item.image) && item.image.length > 0)
+                                                        ? item.image[0]
+                                                        : (item.image_url ? item.image_url : "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?q=80&w=300&h=300&fit=crop")
+                                                    } 
                                                     className="w-full h-full object-cover"
                                                     alt={item.title}
                                                 />
@@ -491,18 +461,23 @@ const handleEdit = (item) => {
                                                 )}
                                             </div>
                                         </td>
+
                                         <td className="px-8 py-6">
-                                            <div className="text-[var(--ink)] font-display font-extrabold text-base">{item.title}</div>
+                                            <div className="text-[var(--ink)] font-display font-extrabold text-base">
+                                                {item.title}
+                                            </div>
                                             <div className="flex items-center gap-1.5 text-[var(--sky)] text-xs font-mono-label font-bold mt-1 bg-[var(--sky-ice)] w-fit px-3 py-1 rounded-full border border-[var(--paper-line)]">
                                                 <MapPin size={14} />
                                                 {item.location || 'Non spécifié'}
                                             </div>
                                         </td>
+
                                         <td className="px-8 py-6">
                                             <p className="text-[var(--ink-soft)] text-sm line-clamp-2 max-w-sm font-normal">
                                                 {item.description || 'Aucune description.'}
                                             </p>
                                         </td>
+
                                         <td className="px-8 py-6">
                                             <div className="flex justify-center items-center gap-3">
                                                 <button 
@@ -542,8 +517,12 @@ const handleEdit = (item) => {
                                         <div className="flex flex-col items-center gap-4">
                                             <LayoutList size={64} className="text-[var(--paper-line)]" />
                                             <div>
-                                                <p className="font-display font-extrabold text-2xl text-[var(--ink)]">Aucune donnée</p>
-                                                <p className="text-[var(--ink-soft)] font-mono-label text-xs uppercase mt-1">Ajoutez votre première intervention.</p>
+                                                <p className="font-display font-extrabold text-2xl text-[var(--ink)]">
+                                                    Aucune donnée
+                                                </p>
+                                                <p className="text-[var(--ink-soft)] font-mono-label text-xs uppercase mt-1">
+                                                    Ajoutez votre première intervention.
+                                                </p>
                                             </div>
                                         </div>
                                     </td>
@@ -559,7 +538,9 @@ const handleEdit = (item) => {
                     </p>
                     <div className="flex items-center gap-2">
                         <span className="w-2 h-2 rounded-full bg-[var(--sky)] animate-pulse"></span>
-                        <span className="text-xs font-mono-label font-bold text-[var(--ink-soft)] uppercase tracking-wider">Serveur Node.js actif</span>
+                        <span className="text-xs font-mono-label font-bold text-[var(--ink-soft)] uppercase tracking-wider">
+                            Serveur Node.js actif
+                        </span>
                     </div>
                 </div>
             </div>
