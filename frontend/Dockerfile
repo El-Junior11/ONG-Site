@@ -4,13 +4,7 @@ WORKDIR /app
 
 COPY package.json package-lock.json ./
 
-ENV NODE_ENV=development
-ENV NPM_CONFIG_PRODUCTION=false
-ENV NPM_CONFIG_OMIT=
-
-RUN npm ci --include=dev
-
-RUN ls -la node_modules/.bin && test -x node_modules/.bin/vite
+RUN npm install --include=dev
 
 COPY . .
 
