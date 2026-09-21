@@ -1,10 +1,12 @@
-FROM node:20-alpine AS builder
+FROM node:20.19.5-alpine3.22 AS builder
 
 WORKDIR /app
 
 COPY package.json package-lock.json ./
 
-RUN npm install --include=dev
+RUN npm install --include=dev --no-audit --no-fund
+
+RUN test -x node_modules/.bin/vite
 
 COPY . .
 
