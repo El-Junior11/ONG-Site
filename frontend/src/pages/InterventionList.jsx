@@ -1,128 +1,206 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import Swal from 'sweetalert2';
 import { Link, useNavigate } from 'react-router-dom';
 import { 
     PlusCircle, LogOut, LayoutList, Trash2, Edit3, Send, 
     RefreshCcw, Settings, MapPin, X, Save, Type, 
     Image as ImageIcon, AlignLeft, Eye, EyeOff, Loader2,
-    Info
+    Info, Search
 } from 'lucide-react';
 import api from '../api/axios';
+
+/* ------------------------------------------------------------------ */
+/*  Toasts SweetAlert2 : tous les messages passent par ces helpers     */
+/* ------------------------------------------------------------------ */
+const Toast = Swal.mixin({
+    toast: true,
+    position: 'top-end',
+    showConfirmButton: false,
+    timer: 2500,
+    timerProgressBar: true,
+    didOpen: (toast) => {
+        toast.addEventListener('mouseenter', Swal.stopTimer);
+        toast.addEventListener('mouseleave', Swal.resumeTimer);
+    }
+});
+
+const notify = (icon, title, text) =>
+    Toast.fire({
+        icon,
+        title,
+        text,
+        timer: icon === 'error' ? 4500 : 2500
+    });
+
+// Toast de confirmation (avec boutons), sans fenêtre modale
+const confirmToast = ({ title, text, icon = 'question', confirmText = 'Oui', cancelText = 'Non', confirmColor = '#1C86C9' }) =>
+    Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon,
+        title,
+        text,
+        showConfirmButton: true,
+        showCancelButton: true,
+        confirmButtonText: confirmText,
+        cancelButtonText: cancelText,
+        confirmButtonColor: confirmColor,
+        cancelButtonColor: '#45566E',
+        reverseButtons: true,
+        timer: undefined
+    });
+
+const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5 Mo par image
+
+const EMPTY_FORM = {
+    title: '',
+    location: '',
+    description: '',
+    image: [],
+    is_published: false
+};
+
+const getCover = (item) =>
+    (item.image && Array.isArray(item.image) && item.image.length > 0)
+        ? item.image[0]
+        : (item.image_url
+            ? item.image_url
+            : "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?q=80&w=300&h=300&fit=crop");
 
 const InterventionList = () => {
     const [interventions, setInterventions] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [saving, setSaving] = useState(false);
     const [actionLoading, setActionLoading] = useState(false);
+    const [deletingId, setDeletingId] = useState(null);
     const navigate = useNavigate();
 
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [editingId, setEditingId] = useState(null);
-    const [formData, setFormData] = useState({
-        title: '',
-        location: '',
-        description: '',
-        image: [],
-        is_published: false
-    });
+    const [formData, setFormData] = useState(EMPTY_FORM);
 
-    const loadData = async () => {
-        setLoading(true);
+    // Recherche et filtre
+    const [search, setSearch] = useState('');
+    const [statusFilter, setStatusFilter] = useState('all'); // all | published | draft
+
+    const loadData = useCallback(async (silent = false) => {
+        if (!silent) setLoading(true);
         try {
             const response = await api.get('/interventions');
-            setInterventions(response.data);
+            setInterventions(Array.isArray(response.data) ? response.data : []);
         } catch (err) {
             console.error("Erreur de chargement Backend:", err);
-            Swal.fire('Erreur', 'Impossible de joindre le serveur backend', 'error');
+            notify('error', 'Serveur injoignable', 'Impossible de joindre le serveur backend');
         } finally {
             setLoading(false);
         }
-    };
+    }, []);
 
     useEffect(() => {
         loadData();
-    }, []);
+    }, [loadData]);
+
+    // Fermer le formulaire avec la touche Échap
+    useEffect(() => {
+        if (!isFormOpen) return;
+        const onKey = (e) => {
+            if (e.key === 'Escape') resetForm();
+        };
+        window.addEventListener('keydown', onKey);
+        return () => window.removeEventListener('keydown', onKey);
+    }, [isFormOpen]);
+
+    const filteredInterventions = useMemo(() => {
+        const q = search.trim().toLowerCase();
+
+        return interventions.filter((item) => {
+            const matchStatus =
+                statusFilter === 'all' ||
+                (statusFilter === 'published' && item.is_published) ||
+                (statusFilter === 'draft' && !item.is_published);
+
+            const matchSearch =
+                !q ||
+                (item.title || '').toLowerCase().includes(q) ||
+                (item.location || '').toLowerCase().includes(q) ||
+                (item.description || '').toLowerCase().includes(q);
+
+            return matchStatus && matchSearch;
+        });
+    }, [interventions, search, statusFilter]);
+
+    const counts = useMemo(() => ({
+        all: interventions.length,
+        published: interventions.filter(i => i.is_published).length,
+        draft: interventions.filter(i => !i.is_published).length
+    }), [interventions]);
 
     const handleLogout = async () => {
-        const result = await Swal.fire({
-            title: 'Êtes-vous sûr de vouloir vous déconnecter ?',
-            text: "Votre session sera fermée.",
-            icon: 'question',
-            showCancelButton: true,
-            confirmButtonColor: '#1C86C9',
-            cancelButtonColor: '#45566E',
-            confirmButtonText: 'Oui',
-            cancelButtonText: 'Non'
+        const result = await confirmToast({
+            title: 'Se déconnecter ?',
+            text: 'Votre session sera fermée.',
+            confirmText: 'Oui',
+            cancelText: 'Non'
         });
 
         if (result.isConfirmed) {
+            notify('success', 'Déconnexion réussie');
             navigate('/login');
         }
     };
 
     const deleteIntervention = async (id) => {
-        const result = await Swal.fire({
-            title: 'Confirmation de suppression',
-            text: "Attention, cette action est définitive !",
+        const result = await confirmToast({
+            title: 'Supprimer cette intervention ?',
+            text: 'Cette action est définitive.',
             icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#ef4444',
-            confirmButtonText: 'Oui, supprimer',
-            cancelButtonText: 'Annuler',
-            reverseButtons: true
+            confirmText: 'Oui, supprimer',
+            cancelText: 'Annuler',
+            confirmColor: '#ef4444'
         });
 
-        if (result.isConfirmed) {
-            setActionLoading(true);
-            try {
-                await api.delete(`/interventions/${id}`);
-                setInterventions(interventions.filter(item => item.id !== id));
-                Swal.fire({
-                    title: 'Supprimé !',
-                    text: "L'intervention a été retirée avec succès.",
-                    icon: 'success',
-                    timer: 1500,
-                    showConfirmButton: false
-                });
-            } catch (err) {
-                Swal.fire('Erreur', 'Erreur lors de la suppression', 'error');
-            } finally {
-                setActionLoading(false);
-            }
+        if (!result.isConfirmed) return;
+
+        setDeletingId(id);
+        try {
+            await api.delete(`/interventions/${id}`);
+            setInterventions(prev => prev.filter(item => item.id !== id));
+            notify('success', 'Supprimé', "L'intervention a été retirée avec succès.");
+        } catch (err) {
+            notify('error', 'Erreur', err.response?.data?.erreur || 'Erreur lors de la suppression');
+        } finally {
+            setDeletingId(null);
         }
     };
 
+    // Mise à jour immédiate de l'écran, retour en arrière si le serveur refuse
     const togglePublish = async (id, currentStatus) => {
+        const nextStatus = !currentStatus;
+
+        setInterventions(prev =>
+            prev.map(item => item.id === id ? { ...item, is_published: nextStatus } : item)
+        );
+
         try {
             await api.patch(`/interventions/${id}/publish`, {
-                is_published: !currentStatus
+                is_published: nextStatus
             });
 
-            setInterventions(interventions.map(item => {
-                if (item.id === id) {
-                    return { ...item, is_published: !currentStatus };
-                }
-                return item;
-            }));
-
-            Swal.fire({
-                title: !currentStatus ? 'Publication réussie !' : 'Mis en brouillon',
-                icon: 'success',
-                timer: 1500,
-                showConfirmButton: false,
-                toast: true,
-                position: 'top-end'
-            });
+            notify('success', nextStatus ? 'Publication réussie' : 'Mis en brouillon');
         } catch (err) {
-            Swal.fire('Erreur', 'Erreur de mise à jour', 'error');
+            setInterventions(prev =>
+                prev.map(item => item.id === id ? { ...item, is_published: currentStatus } : item)
+            );
+            notify('error', 'Erreur de mise à jour', err.response?.data?.erreur);
         }
     };
 
     const handleInputChange = (e) => {
         const { name, value, type, checked } = e.target;
-        setFormData({
-            ...formData,
+        setFormData(prev => ({
+            ...prev,
             [name]: type === 'checkbox' ? checked : value
-        });
+        }));
     };
 
     const handleEdit = (item) => {
@@ -142,20 +220,31 @@ const InterventionList = () => {
     };
 
     const resetForm = () => {
-        setFormData({ 
-            title: '', 
-            location: '', 
-            description: '', 
-            image: [], 
-            is_published: false 
-        });
+        setFormData(EMPTY_FORM);
         setEditingId(null);
         setIsFormOpen(false);
     };
 
+    const removeImage = (index) => {
+        setFormData(prev => ({
+            ...prev,
+            image: prev.image.filter((_, i) => i !== index)
+        }));
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setLoading(true);
+
+        const title = formData.title.trim();
+        const location = formData.location.trim();
+        const description = formData.description.trim();
+
+        if (!title || !location || !description) {
+            notify('warning', 'Champs incomplets', 'Titre, localisation et description sont obligatoires.');
+            return;
+        }
+
+        setSaving(true);
 
         try {
             const firstImage = Array.isArray(formData.image) && formData.image.length > 0
@@ -163,9 +252,9 @@ const InterventionList = () => {
                 : (formData.image || '');
 
             const payload = {
-                title: formData.title,
-                location: formData.location,
-                description: formData.description,
+                title,
+                location,
+                description,
                 is_published: formData.is_published,
                 image_url: firstImage
             };
@@ -176,35 +265,34 @@ const InterventionList = () => {
                 await api.post('/interventions', payload);
             }
 
-            await loadData();
+            await loadData(true);
 
-            Swal.fire({ 
-                title: editingId ? 'Modification réussie' : 'Enregistré avec succès !', 
-                icon: 'success', 
-                timer: 1500, 
-                showConfirmButton: false 
-            });
+            notify('success', editingId ? 'Modification réussie' : 'Enregistré avec succès');
 
             resetForm();
         } catch (err) {
-            Swal.fire(
-                'Erreur technique',
-                err.response?.data?.erreur || err.message,
-                'error'
-            );
+            notify('error', 'Erreur technique', err.response?.data?.erreur || err.message);
         } finally {
-            setLoading(false);
+            setSaving(false);
         } 
     };
 
     const handleImageUpload = async (e) => {
         const files = Array.from(e.target.files || []);
+        e.target.value = ''; // permet de re-sélectionner le même fichier
         if (files.length === 0) return;
     
         const allAreImages = files.every(file => file.type.startsWith('image/'));
 
         if (!allAreImages) {
-            Swal.fire('Erreur', 'Veuillez sélectionner uniquement des fichiers images.', 'error');
+            notify('error', 'Fichier invalide', 'Veuillez sélectionner uniquement des fichiers images.');
+            return;
+        }
+
+        const tooBig = files.find(file => file.size > MAX_IMAGE_SIZE);
+
+        if (tooBig) {
+            notify('warning', 'Image trop lourde', `"${tooBig.name}" dépasse 5 Mo.`);
             return;
         }
     
@@ -227,26 +315,26 @@ const InterventionList = () => {
                 image: Array.isArray(prev.image) ? [...prev.image, ...base64Images] : base64Images
             }));
     
-            Swal.fire({
-                title: 'Succès',
-                text: `${files.length} image(s) ajoutée(s) !`,
-                icon: 'success',
-                timer: 1500,
-                showConfirmButton: false
-            });
+            notify('success', `${files.length} image(s) ajoutée(s)`);
     
         } catch (error) {
-            Swal.fire('Erreur', 'Impossible de charger les images', 'error');
+            notify('error', 'Erreur', 'Impossible de charger les images');
         } finally {
             setActionLoading(false);
         }
     };
 
+    const filterTabs = [
+        { id: 'all', label: 'Toutes', count: counts.all },
+        { id: 'published', label: 'Publiées', count: counts.published },
+        { id: 'draft', label: 'Brouillons', count: counts.draft }
+    ];
+
     return (
         <div className="p-4 md:p-8 bg-[var(--paper)] min-h-screen font-body text-[var(--ink)]">
             
             {/* Header */}
-            <div className="flex flex-col md:flex-row justify-between items-center mb-10 bg-white p-6 rounded-3xl shadow-[0_4px_20px_rgba(11,79,134,0.06)] border border-[var(--paper-line)] gap-6">
+            <div className="flex flex-col md:flex-row justify-between items-center mb-8 bg-white p-6 rounded-3xl shadow-[0_4px_20px_rgba(11,79,134,0.06)] border border-[var(--paper-line)] gap-6">
                 <div className="flex items-center gap-4 text-left">
                     <div className="bg-gradient-to-br from-[var(--sky)] to-[var(--sky-bright)] p-4 rounded-2xl text-white shadow-lg shadow-[var(--sky)]/30">
                         <LayoutList size={32} />
@@ -263,7 +351,7 @@ const InterventionList = () => {
                 </div>
         
                 <div className="flex items-center gap-3 bg-[var(--paper)] p-2 rounded-3xl border border-[var(--paper-line)]">
-                    <button onClick={loadData} className="p-3 text-[var(--ink-soft)] hover:text-[var(--sky)] hover:bg-white rounded-2xl transition-all" title="Actualiser">
+                    <button onClick={() => loadData()} className="p-3 text-[var(--ink-soft)] hover:text-[var(--sky)] hover:bg-white rounded-2xl transition-all" title="Actualiser">
                         <RefreshCcw size={22} className={loading ? 'animate-spin' : ''} />
                     </button>
 
@@ -293,8 +381,8 @@ const InterventionList = () => {
 
             {/* Form */}
             {isFormOpen && (
-                <div className="mb-10 bg-white p-8 rounded-[2.5rem] shadow-[0_12px_32px_rgba(11,79,134,0.1)] border border-[var(--paper-line)]">
-                    <div className="flex items-center gap-3 mb-8 text-left">
+                <div className="mb-8 bg-white p-6 md:p-8 rounded-[2.5rem] shadow-[0_12px_32px_rgba(11,79,134,0.1)] border border-[var(--paper-line)]">
+                    <div className="flex items-center gap-3 mb-6 text-left">
                         <div className="w-2 h-8 bg-[var(--sky)] rounded-full"></div>
                         <h3 className="text-2xl font-display font-extrabold text-[var(--ink)]">
                             {editingId ? 'Modifier l\'Intervention' : 'Ajouter une Intervention'}
@@ -353,12 +441,39 @@ const InterventionList = () => {
                                                 <span className="font-mono-label font-bold text-xs uppercase">
                                                     {formData.image && formData.image.length > 0 
                                                         ? `${formData.image.length} image(s) sélectionnée(s)` 
-                                                        : "Importer des photos"}
+                                                        : "Importer des photos (5 Mo max)"}
                                                 </span>
                                             </div>
                                         )}
                                     </label>
                                 </div>
+
+                                {/* Aperçu des images avec suppression */}
+                                {Array.isArray(formData.image) && formData.image.length > 0 && (
+                                    <div className="grid grid-cols-4 sm:grid-cols-5 gap-2 mt-3">
+                                        {formData.image.map((src, idx) => (
+                                            <div key={idx} className="relative group/img aspect-square rounded-xl overflow-hidden border border-[var(--paper-line)]">
+                                                <img src={src} alt={`Aperçu ${idx + 1}`} className="w-full h-full object-cover" />
+
+                                                {idx === 0 && (
+                                                    <span className="absolute bottom-1 left-1 bg-[var(--ink)]/80 text-white text-[9px] font-mono-label font-bold uppercase px-1.5 py-0.5 rounded-md">
+                                                        Couverture
+                                                    </span>
+                                                )}
+
+                                                <button
+                                                    type="button"
+                                                    onClick={() => removeImage(idx)}
+                                                    className="absolute top-1 right-1 p-1 bg-white/90 text-red-500 rounded-full shadow hover:bg-red-500 hover:text-white transition-colors"
+                                                    title="Retirer cette image"
+                                                    aria-label="Retirer cette image"
+                                                >
+                                                    <X size={12} />
+                                                </button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
                         </div>
 
@@ -401,10 +516,10 @@ const InterventionList = () => {
 
                                 <button
                                     type="submit"
-                                    disabled={actionLoading}
-                                    className="w-full py-4 bg-gradient-to-r from-[var(--sky)] to-[var(--sky-bright)] text-white rounded-2xl font-mono-label font-bold uppercase text-xs tracking-widest shadow-xl shadow-[var(--sky)]/30 hover:shadow-2xl transition-all flex items-center justify-center gap-3"
+                                    disabled={saving || actionLoading}
+                                    className="w-full py-4 bg-gradient-to-r from-[var(--sky)] to-[var(--sky-bright)] text-white rounded-2xl font-mono-label font-bold uppercase text-xs tracking-widest shadow-xl shadow-[var(--sky)]/30 hover:shadow-2xl transition-all flex items-center justify-center gap-3 disabled:opacity-60 disabled:cursor-not-allowed"
                                 >
-                                    {actionLoading ? <Loader2 className="animate-spin" /> : <Save size={22} />}
+                                    {saving ? <Loader2 className="animate-spin" /> : <Save size={22} />}
                                     {editingId ? 'METTRE À JOUR' : 'ENREGISTRER'}
                                 </button>
                             </div>
@@ -413,23 +528,54 @@ const InterventionList = () => {
                 </div>
             )}
 
+            {/* Recherche + filtre */}
+            <div className="mb-4 flex flex-col md:flex-row md:items-center justify-between gap-3">
+                <div className="relative w-full md:max-w-sm">
+                    <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--ink-soft)]" />
+                    <input
+                        type="search"
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                        placeholder="Rechercher un titre, un lieu..."
+                        className="w-full pl-11 pr-4 py-3 bg-white border border-[var(--paper-line)] rounded-2xl text-sm font-medium text-[var(--ink)] focus:border-[var(--sky)] outline-none transition-all"
+                    />
+                </div>
+
+                <div className="flex items-center gap-2 bg-white p-1.5 rounded-2xl border border-[var(--paper-line)] w-fit">
+                    {filterTabs.map((tab) => (
+                        <button
+                            key={tab.id}
+                            type="button"
+                            onClick={() => setStatusFilter(tab.id)}
+                            className={`px-4 py-2 rounded-xl text-[11px] font-mono-label font-bold uppercase tracking-wider transition-all ${
+                                statusFilter === tab.id
+                                    ? 'bg-[var(--sky)] text-white shadow'
+                                    : 'text-[var(--ink-soft)] hover:bg-[var(--sky-ice)] hover:text-[var(--sky-deep)]'
+                            }`}
+                        >
+                            {tab.label} ({tab.count})
+                        </button>
+                    ))}
+                </div>
+            </div>
+
             {/* Table */}
             <div className="bg-white shadow-[0_4px_20px_rgba(11,79,134,0.06)] rounded-[2.5rem] overflow-hidden border border-[var(--paper-line)]">
                 <div className="overflow-x-auto">
                     <table className="min-w-full">
                         <thead>
                             <tr className="bg-[var(--paper)] text-[var(--ink-soft)] uppercase text-[11px] font-mono-label font-black tracking-widest border-b border-[var(--paper-line)]">
-                                <th className="px-8 py-6 text-left">Aperçu</th>
-                                <th className="px-8 py-6 text-left">Intervention</th>
-                                <th className="px-8 py-6 text-left">Description</th>
-                                <th className="px-8 py-6 text-center">Actions</th>
+                                <th className="px-6 md:px-8 py-5 text-left">Aperçu</th>
+                                <th className="px-6 md:px-8 py-5 text-left">Intervention</th>
+                                <th className="px-6 md:px-8 py-5 text-left">Description</th>
+                                <th className="px-6 md:px-8 py-5 text-center">Actions</th>
                             </tr>
                         </thead>
 
                         <tbody className="divide-y divide-[var(--paper-line)]">
                             {loading && !isFormOpen ? (
                                 <tr>
-                                    <td colSpan="4" className="px-8 py-32 text-center">
+                                    <td colSpan="4" className="px-8 py-24 text-center">
                                         <div className="flex flex-col items-center gap-4">
                                             <div className="w-16 h-16 border-4 border-[var(--paper-line)] border-t-[var(--sky)] rounded-full animate-spin"></div>
                                             <span className="font-mono-label font-bold text-[var(--ink-soft)] uppercase text-xs">
@@ -438,17 +584,13 @@ const InterventionList = () => {
                                         </div>
                                     </td>
                                 </tr>
-                            ) : interventions.length > 0 ? (
-                                interventions.map((item) => (
+                            ) : filteredInterventions.length > 0 ? (
+                                filteredInterventions.map((item) => (
                                     <tr key={item.id} className="hover:bg-[var(--paper)]/50 transition-all text-left">
-                                        <td className="px-8 py-6">
+                                        <td className="px-6 md:px-8 py-5">
                                             <div className="relative w-20 h-20 overflow-hidden rounded-2xl shadow-sm border border-[var(--paper-line)]">
                                                 <img 
-                                                    src={
-                                                        (item.image && Array.isArray(item.image) && item.image.length > 0)
-                                                        ? item.image[0]
-                                                        : (item.image_url ? item.image_url : "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?q=80&w=300&h=300&fit=crop")
-                                                    } 
+                                                    src={getCover(item)} 
                                                     className="w-full h-full object-cover"
                                                     alt={item.title}
                                                 />
@@ -462,7 +604,7 @@ const InterventionList = () => {
                                             </div>
                                         </td>
 
-                                        <td className="px-8 py-6">
+                                        <td className="px-6 md:px-8 py-5">
                                             <div className="text-[var(--ink)] font-display font-extrabold text-base">
                                                 {item.title}
                                             </div>
@@ -470,15 +612,22 @@ const InterventionList = () => {
                                                 <MapPin size={14} />
                                                 {item.location || 'Non spécifié'}
                                             </div>
+                                            <span className={`inline-block mt-2 px-2.5 py-0.5 rounded-full text-[10px] font-mono-label font-bold uppercase tracking-wider border ${
+                                                item.is_published
+                                                    ? 'bg-[var(--leaf-ice)] text-[var(--leaf-deep)] border-[var(--leaf)]/25'
+                                                    : 'bg-[var(--paper)] text-[var(--ink-soft)] border-[var(--paper-line)]'
+                                            }`}>
+                                                {item.is_published ? 'Publié' : 'Brouillon'}
+                                            </span>
                                         </td>
 
-                                        <td className="px-8 py-6">
+                                        <td className="px-6 md:px-8 py-5">
                                             <p className="text-[var(--ink-soft)] text-sm line-clamp-2 max-w-sm font-normal">
                                                 {item.description || 'Aucune description.'}
                                             </p>
                                         </td>
 
-                                        <td className="px-8 py-6">
+                                        <td className="px-6 md:px-8 py-5">
                                             <div className="flex justify-center items-center gap-3">
                                                 <button 
                                                     onClick={() => togglePublish(item.id, item.is_published)}
@@ -488,6 +637,7 @@ const InterventionList = () => {
                                                         : 'bg-[var(--paper)] text-[var(--ink-soft)] hover:text-[var(--sky)] border border-[var(--paper-line)]'
                                                     }`}
                                                     title={item.is_published ? "Mettre en brouillon" : "Publier"}
+                                                    aria-label={item.is_published ? "Mettre en brouillon" : "Publier"}
                                                 >
                                                     <Send size={18} />
                                                 </button>
@@ -496,16 +646,19 @@ const InterventionList = () => {
                                                     onClick={() => handleEdit(item)}
                                                     className="p-3 bg-[var(--sky-ice)] text-[var(--sky)] hover:bg-[var(--sky)] hover:text-white rounded-2xl transition-all border border-[var(--paper-line)]"
                                                     title="Modifier"
+                                                    aria-label="Modifier"
                                                 >
                                                     <Edit3 size={18} />
                                                 </button>
 
                                                 <button 
                                                     onClick={() => deleteIntervention(item.id)}
-                                                    className="p-3 bg-red-50 text-red-500 hover:bg-red-500 hover:text-white rounded-2xl transition-all border border-red-100"
+                                                    disabled={deletingId === item.id}
+                                                    className="p-3 bg-red-50 text-red-500 hover:bg-red-500 hover:text-white rounded-2xl transition-all border border-red-100 disabled:opacity-60"
                                                     title="Supprimer"
+                                                    aria-label="Supprimer"
                                                 >
-                                                    <Trash2 size={18} />
+                                                    {deletingId === item.id ? <Loader2 size={18} className="animate-spin" /> : <Trash2 size={18} />}
                                                 </button>
                                             </div>
                                         </td>
@@ -513,15 +666,17 @@ const InterventionList = () => {
                                 ))
                             ) : (
                                 <tr>
-                                    <td colSpan="4" className="px-8 py-32 text-center">
+                                    <td colSpan="4" className="px-8 py-24 text-center">
                                         <div className="flex flex-col items-center gap-4">
                                             <LayoutList size={64} className="text-[var(--paper-line)]" />
                                             <div>
                                                 <p className="font-display font-extrabold text-2xl text-[var(--ink)]">
-                                                    Aucune donnée
+                                                    {interventions.length === 0 ? 'Aucune donnée' : 'Aucun résultat'}
                                                 </p>
                                                 <p className="text-[var(--ink-soft)] font-mono-label text-xs uppercase mt-1">
-                                                    Ajoutez votre première intervention.
+                                                    {interventions.length === 0
+                                                        ? 'Ajoutez votre première intervention.'
+                                                        : 'Modifiez votre recherche ou le filtre.'}
                                                 </p>
                                             </div>
                                         </div>
@@ -532,9 +687,11 @@ const InterventionList = () => {
                     </table>
                 </div>
                 
-                <div className="bg-[var(--paper)] px-8 py-4 border-t border-[var(--paper-line)] flex justify-between items-center">
+                <div className="bg-[var(--paper)] px-6 md:px-8 py-4 border-t border-[var(--paper-line)] flex flex-col sm:flex-row gap-2 justify-between items-center">
                     <p className="text-xs font-mono-label font-bold text-[var(--ink-soft)] uppercase tracking-wider">
-                        TOTAL BASE DE DONNÉES: {interventions.length} INTERVENTION(S)
+                        {filteredInterventions.length === interventions.length
+                            ? `TOTAL BASE DE DONNÉES: ${interventions.length} INTERVENTION(S)`
+                            : `${filteredInterventions.length} SUR ${interventions.length} INTERVENTION(S)`}
                     </p>
                     <div className="flex items-center gap-2">
                         <span className="w-2 h-2 rounded-full bg-[var(--sky)] animate-pulse"></span>

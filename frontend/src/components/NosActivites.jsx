@@ -54,64 +54,70 @@ const NosActivites = () => {
 
   return (
     <div className="bg-[var(--paper)] font-body text-[var(--ink)] overflow-x-hidden">
-      
+
       {/* SECTION 1: En-tête des activités */}
-      <section className="py-10 md:py-14 px-6 md:px-12 bg-[var(--paper)] border-b border-[var(--paper-line)]">
-        <div className="max-w-7xl mx-auto space-y-4 text-left">
-          <span className="inline-flex items-center gap-2 px-4 py-1.5 bg-[var(--leaf-ice)] text-[var(--leaf-deep)] font-mono-label font-bold text-xs uppercase tracking-[0.3em] rounded-full border border-[var(--leaf)]/25">
-            <Sparkles size={14} /> Nos domaines d'action
-          </span>
-          <h1 className="text-3xl md:text-5xl font-display font-bold text-[var(--ink)] tracking-tight leading-tight">
-            Nos <span className="text-[var(--leaf)]">Activités</span>
-          </h1>
-          <div className="space-y-4 text-[var(--ink-soft)] text-base font-body leading-relaxed border-l-2 pl-6 text-justify bg-[var(--paper-tint)] py-4 rounded-r-xl border border-[var(--paper-line)]" style={{ borderLeftColor: 'var(--sky)', borderLeftWidth: '3px' }}>
-            <p>Transformer la précarité en souveraineté à travers l'effort propre et la solidarité communautaire.</p>
+      <section className="pt-10 pb-6 md:pt-12 md:pb-8 px-6 md:px-12 bg-[var(--paper)]">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-12 items-end text-left">
+          <div className="space-y-3">
+            <span className="inline-flex items-center gap-2 px-4 py-1.5 bg-[var(--leaf-ice)] text-[var(--leaf-deep)] font-mono-label font-bold text-xs uppercase tracking-[0.3em] rounded-full border border-[var(--leaf)]/25">
+              <Sparkles size={14} /> Nos domaines d'action
+            </span>
+            <h1 className="text-4xl md:text-6xl font-display font-extrabold text-[var(--ink)] tracking-tight leading-[1.05]">
+              Nos <span className="bg-gradient-to-r from-[var(--leaf)] to-[var(--sky)] bg-clip-text text-transparent">Activités</span>
+            </h1>
           </div>
+
+          <p
+            className="text-[var(--ink-soft)] text-base md:text-lg font-body leading-relaxed pl-5 py-1"
+            style={{ borderLeft: '4px solid var(--sky)' }}
+          >
+            Transformer la précarité en souveraineté à travers l'effort propre et la solidarité communautaire.
+          </p>
         </div>
       </section>
 
-      {/* SECTION 2: Liste des activités détaillées (Espace réduit entre les éléments) */}
-      <section className="py-8 md:py-10 px-6 md:px-12 bg-[var(--paper)] border-b border-[var(--paper-line)]">
-        <div className="max-w-7xl mx-auto space-y-10 md:space-y-12">
+      {/* SECTION 2: Liste des activités détaillées */}
+      <section className="py-4 md:py-6 px-6 md:px-12 bg-[var(--paper)]">
+        <div className="max-w-7xl mx-auto space-y-6 md:space-y-8">
           {activites.map((item, index) => (
-            <article 
-              key={item.id} 
-              className={`flex flex-col ${index % 2 === 0 ? 'lg:flex-row' : 'lg:flex-row-reverse'} gap-8 lg:gap-12 items-center`}
-            > 
-              <div className="w-full lg:w-1/2 relative">
-                <div className="relative overflow-hidden rounded-2xl shadow-sm h-[260px] md:h-[340px] bg-[var(--paper-tint)] border border-[var(--paper-line)]">
-                  <img 
-                    src={item.img} 
-                    alt={item.title} 
-                    className="w-full h-full object-cover" 
-                  />
-                  <div className="absolute top-3 left-3 bg-[var(--ink)]/90 backdrop-blur-md text-white px-3 py-1 rounded-full text-xs font-mono-label font-bold tracking-widest border border-white/10">
-                    {item.id}
-                  </div>
-                  <div className="absolute bottom-3 right-3 p-2.5 bg-white/90 backdrop-blur-md rounded-xl shadow-sm border border-[var(--paper-line)]">
-                    {item.icon}
-                  </div>
+            <article
+              key={item.id}
+              className={`group flex flex-col ${index % 2 === 0 ? 'lg:flex-row' : 'lg:flex-row-reverse'} bg-white rounded-[2rem] border border-[var(--paper-line)] shadow-[0_4px_24px_rgba(11,79,134,0.06)] hover:shadow-[0_16px_40px_rgba(11,79,134,0.12)] transition-shadow duration-300 overflow-hidden`}
+            >
+              <div className="w-full lg:w-5/12 relative min-h-[240px] lg:min-h-full">
+                <img
+                  src={item.img}
+                  alt={item.title}
+                  className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent"></div>
+
+                <div className="absolute top-4 left-4 bg-[var(--ink)]/90 backdrop-blur-md text-white px-3 py-1 rounded-full text-xs font-mono-label font-bold tracking-widest border border-white/10">
+                  {item.id}
+                </div>
+                <div className="absolute bottom-4 right-4 p-2.5 bg-white/90 backdrop-blur-md rounded-xl shadow-sm border border-[var(--paper-line)]">
+                  {item.icon}
                 </div>
               </div>
 
-              <div className="w-full lg:w-1/2 space-y-4 text-left">
+              <div className="w-full lg:w-7/12 p-6 md:p-8 space-y-4 text-left">
                 <div>
                   <span className={`inline-block px-3 py-1 rounded-full text-[11px] font-mono-label font-bold uppercase tracking-[0.2em] border mb-2 ${item.badgeColor}`}>
                     {item.subtitle}
                   </span>
-                  <h2 className="text-2xl md:text-3xl font-display font-bold text-[var(--ink)] tracking-tight">
+                  <h2 className="text-2xl md:text-3xl font-display font-extrabold text-[var(--ink)] tracking-tight">
                     {item.title}
                   </h2>
                 </div>
-                
-                <div className="space-y-3 text-[var(--ink-soft)]">
-                  <p className="text-sm font-bold text-[var(--ink)] leading-snug">{item.desc}</p>
-                  <p className="text-xs md:text-sm leading-relaxed text-justify">{item.details}</p>
+
+                <div className="space-y-2 text-[var(--ink-soft)]">
+                  <p className="text-sm md:text-base font-bold text-[var(--ink)] leading-snug">{item.desc}</p>
+                  <p className="text-sm leading-relaxed">{item.details}</p>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   {item.points.map((point, pIdx) => (
-                    <div key={pIdx} className="flex items-center space-x-2 bg-[var(--paper-tint)] p-3 rounded-xl border border-[var(--paper-line)]">
+                    <div key={pIdx} className="flex items-center gap-2 bg-[var(--paper)] px-3 py-2.5 rounded-xl border border-[var(--paper-line)] hover:border-[var(--sky-bright)] transition-colors">
                       <CheckCircle2 size={16} className="text-[var(--leaf)] shrink-0" />
                       <span className="text-[11px] font-mono-label font-semibold text-[var(--ink)] uppercase tracking-tight">
                         {point}
@@ -126,15 +132,15 @@ const NosActivites = () => {
       </section>
 
       {/* SECTION 3: Domaines de Formation */}
-      <section className="py-8 md:py-10 px-6 md:px-12 bg-[var(--paper)] border-b border-[var(--paper-line)]">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="text-center md:text-left space-y-1">
+      <section className="py-6 md:py-8 px-6 md:px-12 bg-[var(--paper)]">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 bg-white rounded-[2rem] border border-[var(--paper-line)] shadow-[0_4px_24px_rgba(11,79,134,0.06)] px-6 md:px-8 py-5">
+          <div className="text-center md:text-left">
             <span className="text-[var(--sky)] font-mono-label font-bold text-xs uppercase tracking-[0.3em]">Programmes</span>
-            <h3 className="text-xl md:text-2xl font-display font-bold text-[var(--ink)] tracking-tight">Domaines de Formation</h3>
+            <h3 className="text-xl md:text-2xl font-display font-extrabold text-[var(--ink)] tracking-tight">Domaines de Formation</h3>
           </div>
-          <div className="flex flex-wrap justify-center gap-3">
+          <div className="flex flex-wrap justify-center gap-2">
             {["Gestion Simplifiée", "Agroécologie", "Genre", "Nutrition", "Plaidoyer", "Climat"].map((f, i) => (
-              <div key={i} className="px-4 py-2.5 bg-white border border-[var(--paper-line)] text-xs font-mono-label font-semibold text-[var(--ink)] uppercase rounded-xl shadow-sm hover:border-[var(--sky)] transition-colors">
+              <div key={i} className="px-4 py-2 bg-[var(--paper)] border border-[var(--paper-line)] text-xs font-mono-label font-semibold text-[var(--ink)] uppercase rounded-full hover:border-[var(--sky)] hover:bg-[var(--sky-ice)] transition-colors">
                 {f}
               </div>
             ))}
@@ -142,18 +148,20 @@ const NosActivites = () => {
         </div>
       </section>
 
-{/* SECTION 4: Appel à l'action */}
-      <section className="py-6 md:py-8 text-center container mx-auto px-6">
-        <div className="bg-[var(--leaf)] rounded-2xl p-6 md:p-8 text-white relative overflow-hidden border-t-4 border-[var(--sky-bright)] shadow-sm">
+      {/* SECTION 4: Appel à l'action */}
+      <section className="pt-2 pb-10 md:pb-12 text-center container mx-auto px-6">
+        <div className="bg-gradient-to-br from-[var(--leaf-deep)] via-[var(--leaf)] to-[var(--leaf)] rounded-[2rem] p-7 md:p-10 text-white relative overflow-hidden border-t-4 border-[var(--sky-bright)] shadow-2xl shadow-[var(--leaf-deep)]/20">
+          <div className="absolute -top-16 -right-16 w-64 h-64 rounded-full bg-[var(--sky-bright)]/20 blur-3xl" aria-hidden="true"></div>
+
           <div className="max-w-2xl mx-auto relative z-10 space-y-3">
             <span className="text-[var(--paper)] font-mono-label font-bold text-[10px] uppercase tracking-[0.4em]">Engagement</span>
-            <h2 className="text-xl md:text-3xl font-display font-bold tracking-tight">Bâtissons l'autonomie.</h2>
-            <p className="text-white/80 font-mono-label font-semibold text-[10px] md:text-xs uppercase tracking-widest pb-2">
+            <h2 className="text-2xl md:text-4xl font-display font-extrabold tracking-tight">Bâtissons l'autonomie.</h2>
+            <p className="text-white/85 font-mono-label font-semibold text-[10px] md:text-xs uppercase tracking-widest pb-2">
               Nous ciblons les personnes les plus démunies pour transformer l'exclusion en force collective.
             </p>
-            <Link 
-              to="/contact" 
-              className="inline-flex items-center gap-2.5 bg-[var(--sky)] text-white px-6 py-3 font-mono-label font-bold uppercase text-[10px] tracking-widest hover:bg-[var(--sky-deep)] transition-colors rounded-lg shadow-sm"
+            <Link
+              to="/contact"
+              className="inline-flex items-center gap-2.5 bg-[var(--sky)] text-white px-8 py-4 font-mono-label font-bold uppercase text-[11px] tracking-widest hover:bg-[var(--sky-deep)] hover:-translate-y-0.5 transition-all rounded-full shadow-lg shadow-black/20"
             >
               <span>Travailler avec nous</span>
               <ArrowRight size={14} />
@@ -161,7 +169,7 @@ const NosActivites = () => {
           </div>
         </div>
       </section>
-      
+
     </div>
   );
 };
