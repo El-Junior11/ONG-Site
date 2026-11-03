@@ -63,7 +63,7 @@ const getAvatar = (member) =>
 
 const getMemberId = (member) => member?.id || member?._id;
 
-const AdminProfile = ({ adminUser, setAdminUser }) => {
+const AdminProfile = ({ adminUser, setAdminUser, adminError }) => {
     const [newEmail, setNewEmail] = useState(adminUser?.email || '');
     const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
@@ -142,6 +142,12 @@ const AdminProfile = ({ adminUser, setAdminUser }) => {
                 </div>
                 
                 <div className="space-y-5">
+                    {adminError && (
+                        <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 text-amber-800 text-xs font-mono-label font-semibold leading-relaxed text-left">
+                            Le serveur ne répond pas sur <strong>GET /api/admin</strong> (erreur 404). Ajoutez cette route côté backend pour modifier le profil administrateur.
+                        </div>
+                    )}
+
                     <div className="flex flex-col gap-2">
                         <label className="text-[10px] font-mono-label font-bold text-[var(--ink-soft)] uppercase tracking-widest ml-1">Admin Actuel</label>
                         <div className="flex items-center gap-3 bg-[var(--paper)] p-4 rounded-2xl border border-[var(--paper-line)]">
@@ -220,7 +226,7 @@ const AdminProfile = ({ adminUser, setAdminUser }) => {
 
                     <button 
                         onClick={handleUpdateProfile}
-                        disabled={loading || !hasChanges}
+                        disabled={loading || !hasChanges || adminError}
                         className="w-full mt-2 rounded-2xl bg-gradient-to-r from-[var(--sky)] to-[var(--sky-bright)] py-4 font-mono-label font-black text-[10px] uppercase tracking-[0.2em] text-white shadow-lg shadow-[var(--sky)]/20 transition-all duration-300 hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer flex items-center justify-center gap-2"
                     >
                         {loading ? <Loader2 className="animate-spin" size={16} /> : <><Save size={16} /> <span>Mettre à jour</span></>}
@@ -241,6 +247,7 @@ const Parametres = () => {
     const [uploading, setUploading] = useState(false);
     const [deletingId, setDeletingId] = useState(null);
     const [adminUser, setAdminUser] = useState(null);
+    const [adminError, setAdminError] = useState(false);
     const [search, setSearch] = useState('');
 
     const navigate = useNavigate();
@@ -262,9 +269,16 @@ const Parametres = () => {
         try {
             const response = await api.get('/admin');
             setAdminUser(response.data);
+            setAdminError(false);
         } catch (err) {
             console.error("Error loading admin info:", err);
-            notify('error', 'Profil administrateur indisponible', getErrorMessage(err, 'Serveur injoignable'));
+            setAdminError(true);
+
+            if (err.response?.status === 404) {
+                notify('warning', 'Route /admin introuvable', "Le backend n'a pas de route GET /api/admin.");
+            } else {
+                notify('error', 'Profil administrateur indisponible', getErrorMessage(err, 'Serveur injoignable'));
+            }
         }
     }, []);
 
@@ -557,7 +571,7 @@ const Parametres = () => {
                 </div>
 
                 <div className="lg:col-span-4">
-                    <AdminProfile adminUser={adminUser} setAdminUser={setAdminUser} />
+                    <AdminProfile adminUser={adminUser} setAdminUser={setAdminUser} adminError={adminError} />
                 </div>
             </div>
 

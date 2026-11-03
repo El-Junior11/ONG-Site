@@ -60,12 +60,86 @@ const EMPTY_FORM = {
     is_published: false
 };
 
+const MAX_IMAGES = 8; // nombre maximum d'images par intervention
+
+// Transforme une valeur (tableau, JSON, URL simple) en liste d'images
+const parseList = (value) => {
+    if (!value) return [];
+    if (Array.isArray(value)) return value.filter(Boolean);
+
+    if (typeof value === 'string') {
+        const v = value.trim();
+
+        if (v.startsWith('[')) {
+            try {
+                const arr = JSON.parse(v);
+                return Array.isArray(arr) ? arr.filter(Boolean) : [];
+            } catch {
+                return [v];
+            }
+        }
+
+        return v ? [v] : [];
+    }
+
+    return [];
+};
+
+// Toutes les images d'une intervention (champ image et/ou image_url)
+const parseImages = (item) => [...new Set([...parseList(item.image), ...parseList(item.image_url)])];
+
+// 0 image → '', 1 image → URL simple, plusieurs → tableau JSON enregistré dans image_url
+const serializeImages = (images) => {
+    const list = parseList(images);
+    if (list.length === 0) return '';
+    if (list.length === 1) return list[0];
+    return JSON.stringify(list);
+};
+
+// Réduit la taille de chaque photo (1280 px max, JPEG) pour que plusieurs images passent facilement
+const compressImage = (file, maxSize = 1280, quality = 0.82) =>
+    new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onerror = reject;
+        reader.onload = () => {
+            const original = reader.result;
+
+            if (file.type === 'image/gif' || file.type === 'image/svg+xml') {
+                resolve(original);
+                return;
+            }
+
+            const img = new Image();
+            img.onerror = () => resolve(original);
+            img.onload = () => {
+                try {
+                    const ratio = Math.min(1, maxSize / Math.max(img.width, img.height));
+                    const width = Math.round(img.width * ratio);
+                    const height = Math.round(img.height * ratio);
+
+                    const canvas = document.createElement('canvas');
+                    canvas.width = width;
+                    canvas.height = height;
+
+                    const ctx = canvas.getContext('2d');
+                    ctx.fillStyle = '#ffffff';
+                    ctx.fillRect(0, 0, width, height);
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    const compressed = canvas.toDataURL('image/jpeg', quality);
+                    resolve(compressed.length < original.length ? compressed : original);
+                } catch {
+                    resolve(original);
+                }
+            };
+            img.src = original;
+        };
+        reader.readAsDataURL(file);
+    });
+
 const getCover = (item) =>
-    (item.image && Array.isArray(item.image) && item.image.length > 0)
-        ? item.image[0]
-        : (item.image_url
-            ? item.image_url
-            : "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?q=80&w=300&h=300&fit=crop");
+    parseImages(item)[0] ||
+    "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?q=80&w=300&h=300&fit=crop";
 
 const InterventionList = () => {
     const [interventions, setInterventions] = useState([]);
@@ -182,16 +256,36 @@ const InterventionList = () => {
         );
 
         try {
-            await api.patch(`/interventions/${id}/publish`, {
-                is_published: nextStatus
-            });
+            try {
+                await api.patch(`/interventions/${id}/publish`, {
+                    is_published: nextStatus
+                });
+            } catch (patchErr) {
+                // Route PATCH absente côté serveur (404) : on passe par la route de modification (PUT)
+                if (patchErr.response?.status !== 404) throw patchErr;
+
+                const current = interventions.find(item => item.id === id);
+                if (!current) throw patchErr;
+
+                await api.put(`/interventions/${id}`, {
+                    title: current.title,
+                    location: current.location,
+                    description: current.description,
+                    image_url: current.image_url ?? serializeImages(parseImages(current)),
+                    is_published: nextStatus
+                });
+            }
 
             notify('success', nextStatus ? 'Publication réussie' : 'Mis en brouillon');
         } catch (err) {
             setInterventions(prev =>
                 prev.map(item => item.id === id ? { ...item, is_published: currentStatus } : item)
             );
-            notify('error', 'Erreur de mise à jour', err.response?.data?.erreur);
+            notify(
+                'error',
+                'Erreur de mise à jour',
+                err.response?.data?.erreur || err.response?.data?.message || err.message
+            );
         }
     };
 
@@ -205,7 +299,7 @@ const InterventionList = () => {
 
     const handleEdit = (item) => {
         setEditingId(item.id);
-        const existingImage = item.image_url ? [item.image_url] : [];
+        const existingImage = parseImages(item);
 
         setFormData({
             title: item.title || '',
@@ -232,6 +326,15 @@ const InterventionList = () => {
         }));
     };
 
+    // Place l'image choisie en première position (= couverture)
+    const makeCover = (index) => {
+        setFormData(prev => {
+            const list = [...prev.image];
+            const [picked] = list.splice(index, 1);
+            return { ...prev, image: [picked, ...list] };
+        });
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
 
@@ -247,16 +350,12 @@ const InterventionList = () => {
         setSaving(true);
 
         try {
-            const firstImage = Array.isArray(formData.image) && formData.image.length > 0
-                ? formData.image[0]
-                : (formData.image || '');
-
             const payload = {
                 title,
                 location,
                 description,
                 is_published: formData.is_published,
-                image_url: firstImage
+                image_url: serializeImages(formData.image)
             };
 
             if (editingId) {
@@ -295,28 +394,33 @@ const InterventionList = () => {
             notify('warning', 'Image trop lourde', `"${tooBig.name}" dépasse 5 Mo.`);
             return;
         }
+
+        const currentCount = Array.isArray(formData.image) ? formData.image.length : 0;
+        const remaining = MAX_IMAGES - currentCount;
+
+        if (remaining <= 0) {
+            notify('warning', 'Limite atteinte', `Maximum ${MAX_IMAGES} images par intervention.`);
+            return;
+        }
+
+        const selected = files.slice(0, remaining);
+        const truncated = selected.length < files.length;
     
         setActionLoading(true);
     
         try {
-            const readerPromises = files.map(file => {
-                return new Promise((resolve, reject) => {
-                    const reader = new FileReader();
-                    reader.onload = () => resolve(reader.result);
-                    reader.onerror = error => reject(error);
-                    reader.readAsDataURL(file);
-                });
-            });
-
-            const base64Images = await Promise.all(readerPromises);
+            const processed = await Promise.all(selected.map(file => compressImage(file)));
     
             setFormData(prev => ({
                 ...prev,
-                image: Array.isArray(prev.image) ? [...prev.image, ...base64Images] : base64Images
+                image: [...(Array.isArray(prev.image) ? prev.image : []), ...processed]
             }));
     
-            notify('success', `${files.length} image(s) ajoutée(s)`);
-    
+            if (truncated) {
+                notify('warning', `${selected.length} image(s) ajoutée(s)`, `Maximum ${MAX_IMAGES} images par intervention.`);
+            } else {
+                notify('success', `${selected.length} image(s) ajoutée(s)`);
+            }
         } catch (error) {
             notify('error', 'Erreur', 'Impossible de charger les images');
         } finally {
@@ -440,8 +544,8 @@ const InterventionList = () => {
                                                 <ImageIcon size={24} />
                                                 <span className="font-mono-label font-bold text-xs uppercase">
                                                     {formData.image && formData.image.length > 0 
-                                                        ? `${formData.image.length} image(s) sélectionnée(s)` 
-                                                        : "Importer des photos (5 Mo max)"}
+                                                        ? `${formData.image.length}/${MAX_IMAGES} image(s) · en ajouter` 
+                                                        : "Importer une ou plusieurs photos (5 Mo max)"}
                                                 </span>
                                             </div>
                                         )}
@@ -459,6 +563,17 @@ const InterventionList = () => {
                                                     <span className="absolute bottom-1 left-1 bg-[var(--ink)]/80 text-white text-[9px] font-mono-label font-bold uppercase px-1.5 py-0.5 rounded-md">
                                                         Couverture
                                                     </span>
+                                                )}
+
+                                                {idx > 0 && (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => makeCover(idx)}
+                                                        className="absolute bottom-1 left-1 bg-white/90 text-[var(--sky-deep)] text-[9px] font-mono-label font-bold uppercase px-1.5 py-0.5 rounded-md hover:bg-[var(--sky)] hover:text-white transition-colors sm:opacity-0 sm:group-hover/img:opacity-100"
+                                                        title="Définir comme couverture"
+                                                    >
+                                                        Couverture
+                                                    </button>
                                                 )}
 
                                                 <button
@@ -594,10 +709,10 @@ const InterventionList = () => {
                                                     className="w-full h-full object-cover"
                                                     alt={item.title}
                                                 />
-                                                {Array.isArray(item.image) && item.image.length > 1 && (
+                                                {parseImages(item).length > 1 && (
                                                     <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
                                                         <span className="text-white font-display font-extrabold text-sm">
-                                                            +{item.image.length - 1}
+                                                            +{parseImages(item).length - 1}
                                                         </span>
                                                     </div>
                                                 )}

@@ -20,8 +20,19 @@ const getImages = (item) => {
 
     images = images.filter(Boolean);
 
-    if (images.length === 0 && item.image_url) {
-        images = [item.image_url];
+    // image_url peut contenir une URL simple ou un tableau JSON (plusieurs images)
+    if (item.image_url) {
+        let fromUrl = [item.image_url];
+
+        try {
+            if (typeof item.image_url === 'string' && item.image_url.trim().startsWith('[')) {
+                fromUrl = JSON.parse(item.image_url);
+            }
+        } catch {
+            fromUrl = [item.image_url];
+        }
+
+        images = [...new Set([...images, ...fromUrl.filter(Boolean)])];
     }
 
     return images.length > 0 ? images : [FALLBACK_IMAGE];
@@ -117,43 +128,37 @@ const InterventionsPubliees = () => {
                         <div className="space-y-6 md:space-y-8">
                             {interventions.map((item, index) => {
                                 const images = getImages(item);
-                                const [mainImage, ...otherImages] = images;
 
                                 return (
                                     <article
                                         key={item.id}
                                         className={`flex flex-col ${index % 2 === 0 ? 'lg:flex-row' : 'lg:flex-row-reverse'} bg-white rounded-[2rem] border border-[var(--paper-line)] shadow-[0_4px_24px_rgba(11,79,134,0.06)] overflow-hidden`}
                                     >
-                                        {/* Images : toutes visibles */}
-                                        <div className="w-full lg:w-5/12 p-3 space-y-3 bg-[var(--paper)]/60">
-                                            <div className="relative rounded-[1.5rem] overflow-hidden aspect-[4/3] bg-[var(--paper-line)]">
-                                                <img
-                                                    src={mainImage}
-                                                    alt={item.title}
-                                                    className="w-full h-full object-cover"
-                                                />
+                                        {/* Images : toutes de la même taille, sans découpe */}
+                                        <div
+                                            className={`w-full lg:w-5/12 p-3 grid gap-3 content-start bg-[var(--paper)]/60 ${
+                                                images.length === 1 ? 'grid-cols-1' : 'grid-cols-2'
+                                            }`}
+                                        >
+                                            {images.map((img, idx) => (
+                                                <div
+                                                    key={idx}
+                                                    className="relative rounded-2xl overflow-hidden aspect-[4/3] bg-white border border-[var(--paper-line)]"
+                                                >
+                                                    <img
+                                                        src={img}
+                                                        alt={`${item.title} ${idx + 1}`}
+                                                        className="w-full h-full object-contain"
+                                                        onError={(e) => { e.target.onerror = null; e.target.src = FALLBACK_IMAGE; }}
+                                                    />
 
-                                                <span className="absolute top-3 left-3 bg-white/90 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-mono-label font-bold text-[var(--sky)] border border-[var(--paper-line)] uppercase tracking-widest shadow-sm">
-                                                    Réalisé
-                                                </span>
-                                            </div>
-
-                                            {otherImages.length > 0 && (
-                                                <div className="grid grid-cols-3 gap-3">
-                                                    {otherImages.map((img, idx) => (
-                                                        <div
-                                                            key={idx}
-                                                            className="rounded-2xl overflow-hidden aspect-square bg-[var(--paper-line)]"
-                                                        >
-                                                            <img
-                                                                src={img}
-                                                                alt={`${item.title} ${idx + 2}`}
-                                                                className="w-full h-full object-cover"
-                                                            />
-                                                        </div>
-                                                    ))}
+                                                    {idx === 0 && (
+                                                        <span className="absolute top-2 left-2 bg-white/90 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-mono-label font-bold text-[var(--sky)] border border-[var(--paper-line)] uppercase tracking-widest shadow-sm">
+                                                            Réalisé
+                                                        </span>
+                                                    )}
                                                 </div>
-                                            )}
+                                            ))}
                                         </div>
 
                                         {/* Texte complet */}
