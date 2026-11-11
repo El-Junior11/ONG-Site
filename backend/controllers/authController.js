@@ -1,3 +1,5 @@
+
+const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const AdminModel = require('../models/adminModel');
 
@@ -14,7 +16,18 @@ const authController = {
 
             const admin = await AdminModel.trouverParEmail(email);
 
-            if (!admin || admin.password !== password) {
+            if (!admin) {
+                return res.status(401).json({
+                    erreur: 'Email ou mot de passe incorrect.'
+                });
+            }
+
+            const motDePasseValide = await bcrypt.compare(
+                password,
+                admin.password
+            );
+
+            if (!motDePasseValide) {
                 return res.status(401).json({
                     erreur: 'Email ou mot de passe incorrect.'
                 });
