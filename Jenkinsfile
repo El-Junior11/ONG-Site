@@ -132,7 +132,7 @@ pipeline {
       }
     }
 
-    stage('09 - Déploiement en production') {
+        stage('09 - Déploiement en production') {
       when {
         expression { params.DEPLOY_PROD }
       }
@@ -140,14 +140,18 @@ pipeline {
         sshagent(credentials: ['ong-site-vps-ssh']) {
           sh '''
             set -eu
-            ssh -o StrictHostKeyChecking=yes "$VPS_USER@$VPS_HOST" \
-              "test -d '$VPS_DIR' && test -f '$VPS_DIR/docker-compose.prod.yml' && test -f '$VPS_DIR/.env'"
 
             ssh -o StrictHostKeyChecking=yes "$VPS_USER@$VPS_HOST" \
-              "cd '$VPS_DIR' && docker compose -p ong-site -f docker-compose.prod.yml config --quiet"
+              "test -f '$VPS_DIR/docker-compose.prod.yml' && test -f '$VPS_DIR/.env' && test -f '$VPS_DIR/backend/.env'"
 
             ssh -o StrictHostKeyChecking=yes "$VPS_USER@$VPS_HOST" \
-              "cd '$VPS_DIR' && docker compose -p ong-site -f docker-compose.prod.yml up -d --no-deps frontend backend"
+              "cd '$VPS_DIR' && \
+              cp .env .env.bak && \
+              sed -i 's/^VERSION=.*/VERSION=$VERSION/' .env && \
+              docker compose -p ong-site -f docker-compose.prod.yml config --quiet && \
+              docker compose -p ong-site -f docker-compose.prod.yml pull backend frontend && \
+              docker compose -p ong-site -f docker-compose.prod.yml up -d --no-deps backend frontend && \
+              curl --fail --silent --show-error --retry 10 --retry-delay 3 http://127.0.0.1:8087/ > /dev/null"
           '''
         }
       }
