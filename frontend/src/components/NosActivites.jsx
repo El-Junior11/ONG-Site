@@ -1,4 +1,3 @@
-import React from 'react';
 import { 
   CheckCircle2, Sprout, Users, Coins, Network, ArrowRight, Sparkles 
 } from 'lucide-react';

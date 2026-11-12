@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { MapPin, Calendar, Sparkles, Layers, RefreshCcw } from 'lucide-react';
 import api from '../api/axios';
 
@@ -70,7 +70,8 @@ const InterventionsPubliees = () => {
     };
 
     useEffect(() => {
-        fetchPublishedData();
+        const timer = setTimeout(() => fetchPublishedData(), 0);
+        return () => clearTimeout(timer);
     }, []);
 
     if (loading) {

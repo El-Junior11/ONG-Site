@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
     Plus, Edit, Trash2, Settings, Save, X, Loader2, ArrowLeft, 
@@ -71,7 +71,10 @@ const AdminProfile = ({ adminUser, setAdminUser, adminError }) => {
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
-        if (adminUser?.email) setNewEmail(adminUser.email);
+        if (adminUser?.email) {
+            const timer = setTimeout(() => setNewEmail(adminUser.email), 0);
+            return () => clearTimeout(timer);
+        }
     }, [adminUser]);
 
     const emailChanged = newEmail.trim() !== (adminUser?.email || '');
@@ -283,21 +286,24 @@ const Parametres = () => {
     }, []);
 
     useEffect(() => {
-        fetchAdmin();
-        fetchTeam();
+        const timer = setTimeout(() => {
+            fetchAdmin();
+            fetchTeam();
+        }, 0);
+        return () => clearTimeout(timer);
     }, [fetchAdmin, fetchTeam]);
 
     // Aperçu de la nouvelle photo choisie (libéré à chaque changement)
     useEffect(() => {
-        if (!formData.image) {
-            setPreviewUrl('');
-            return;
-        }
+        if (!formData.image) return;
 
         const url = URL.createObjectURL(formData.image);
-        setPreviewUrl(url);
+        const timer = setTimeout(() => setPreviewUrl(url), 0);
 
-        return () => URL.revokeObjectURL(url);
+        return () => {
+            clearTimeout(timer);
+            URL.revokeObjectURL(url);
+        };
     }, [formData.image]);
 
     const closeModal = useCallback(() => {

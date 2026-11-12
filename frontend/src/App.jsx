@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { Home, Info, Briefcase, Award, Mail, UserCircle, Menu, X, ArrowRight, ShieldCheck, HeartHandshake } from 'lucide-react';
 import Login from './Login';
@@ -151,30 +151,35 @@ const CanopyDivider = ({ flip = false, tone = "leaf", className = "" }) => (
 const TeamSection = () => {
   const [team, setTeam] = useState([]);
   const [teamLoading, setTeamLoading] = useState(true);
-  const API_URL = 'http://localhost:5000/api/team';
-  const loadTeamData = async () => {
-    setTeamLoading(true);
-    try {
-      const response = await fetch(API_URL);
-      const contentType = response.headers.get("content-type");
-      if (!contentType || !contentType.includes("application/json")) {
-        throw new Error("La réponse du serveur n'est pas au format JSON valide.");
-      }
-      const data = await response.json();
-      if (response.ok) {
-        setTeam(data);
-      } else {
-        console.error('Erreur lors du chargement de l\'équipe');
-      }
-    } catch (err) {
-      console.error("Erreur de chargement Backend Team:", err);
-    } finally {
-      setTeamLoading(false);
-    }
-  };
   useEffect(() => {
-    loadTeamData();
-  }, []);
+      let active = true;
+
+      const fetchTeam = async () => {
+        try {
+          const response = await fetch('/api/team');
+          const contentType = response.headers.get('content-type');
+
+          if (!contentType?.includes('application/json')) {
+            throw new Error("La réponse du serveur n'est pas au format JSON valide.");
+          }
+
+          const data = await response.json();
+
+          if (active && response.ok) {
+            setTeam(data);
+          } else if (active) {
+            console.error("Erreur lors du chargement de l'équipe");
+          }
+        } catch (err) {
+          if (active) console.error('Erreur de chargement Backend Team:', err);
+        } finally {
+          if (active) setTeamLoading(false);
+        }
+      };
+
+      fetchTeam();
+      return () => { active = false; };
+    }, []);
   if (teamLoading) {
     return (
       <div className="py-10 text-center flex flex-col justify-center items-center bg-[var(--paper)]">
@@ -402,9 +407,11 @@ const HomePage = () => {
       return () => clearTimeout(pause);
     }
     if (heroDeleting && heroText === "") {
-      setHeroDeleting(false);
-      setHeroLoop((prev) => prev + 1);
-      return;
+      const timer = setTimeout(() => {
+        setHeroDeleting(false);
+        setHeroLoop((prev) => prev + 1);
+      }, 0);
+      return () => clearTimeout(timer);
     }
     const timer = setTimeout(
       () =>

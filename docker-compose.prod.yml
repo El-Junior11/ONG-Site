@@ -1,0 +1,55 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: site_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${SITE_DB_PASSWORD:?SITE_DB_PASSWORD required}
+    volumes:
+      - site_postgres_data:/var/lib/postgresql/data
+    networks:
+      - site-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d site_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build: ./backend
+    restart: unless-stopped
+    env_file:
+      - ./backend/.env
+    environment:
+      NODE_ENV: production
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: site_db
+      DB_USER: postgres
+      DB_PASSWORD: ${SITE_DB_PASSWORD:?SITE_DB_PASSWORD required}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - site-network
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_URL: /api
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "127.0.0.1:8087:80"
+    networks:
+      - site-network
+
+volumes:
+  site_postgres_data:
+
+networks:
+  site-network:
+    driver: bridge

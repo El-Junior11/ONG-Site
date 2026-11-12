@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useMemo } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import { Camera, Sparkles, MapPin, Layers, Loader2, RefreshCcw } from 'lucide-react';
 import api from '../api/axios';
 
@@ -94,7 +94,7 @@ const Realisations = () => {
     }, []);
 
     useEffect(() => {
-        fetchRealisations();
+        setTimeout(() => fetchRealisations(), 0);
 
         const interval = setInterval(() => fetchRealisations(true), REFRESH_INTERVAL);
 

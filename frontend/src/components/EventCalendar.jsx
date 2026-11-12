@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import { Calendar as CalendarIcon, Newspaper, ArrowRight, Sparkles } from 'lucide-react';

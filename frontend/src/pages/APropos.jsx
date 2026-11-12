@@ -1,5 +1,4 @@
-import React from 'react';
-import { Target, Heart, ShieldCheck, Users, Sprout, Landmark, ArrowRight, Sparkles } from 'lucide-react';
+import { Heart, ShieldCheck, Users, ArrowRight, Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const APropos = () => {

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Mail, Phone, MapPin, Send, Globe, Share2, MessageCircle, Loader2, Sparkles } from 'lucide-react';
 import Swal from 'sweetalert2';
 import emailjs from '@emailjs/browser';

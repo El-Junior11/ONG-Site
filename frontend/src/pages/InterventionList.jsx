@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import Swal from 'sweetalert2';
 import { Link, useNavigate } from 'react-router-dom';
 import { 
@@ -171,7 +171,8 @@ const InterventionList = () => {
     }, []);
 
     useEffect(() => {
-        loadData();
+        const timer = setTimeout(() => loadData(), 0);
+        return () => clearTimeout(timer);
     }, [loadData]);
 
     // Fermer le formulaire avec la touche Échap
@@ -313,11 +314,11 @@ const InterventionList = () => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
-    const resetForm = () => {
+    function resetForm() {
         setFormData(EMPTY_FORM);
         setEditingId(null);
         setIsFormOpen(false);
-    };
+    }
 
     const removeImage = (index) => {
         setFormData(prev => ({
@@ -421,7 +422,7 @@ const InterventionList = () => {
             } else {
                 notify('success', `${selected.length} image(s) ajoutée(s)`);
             }
-        } catch (error) {
+        } catch {
             notify('error', 'Erreur', 'Impossible de charger les images');
         } finally {
             setActionLoading(false);
