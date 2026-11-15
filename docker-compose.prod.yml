@@ -17,7 +17,7 @@ services:
       retries: 5
 
   backend:
-    build: ./backend
+    image: ghcr.io/el-junior11/ong-site-backend:${VERSION:?VERSION required}
     restart: unless-stopped
     env_file:
       - ./backend/.env
@@ -35,10 +35,7 @@ services:
       - site-network
 
   frontend:
-    build:
-      context: ./frontend
-      args:
-        VITE_API_URL: /api
+    image: ghcr.io/el-junior11/ong-site-frontend:${VERSION:?VERSION required}
     restart: unless-stopped
     depends_on:
       - backend
