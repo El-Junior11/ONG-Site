@@ -41,6 +41,7 @@ const APropos = () => {
         </div>
       </section>
 
+      {/* SECTION 2: Méthodologie */}
       <section className="py-3 md:py-4 px-6 md:px-12 bg-[var(--paper)]">
         <div className="max-w-7xl mx-auto">
           <article className="group flex flex-col lg:flex-row-reverse bg-white rounded-[2rem] border border-[var(--paper-line)] shadow-[0_4px_24px_rgba(11,79,134,0.06)] hover:shadow-[0_16px_40px_rgba(11,79,134,0.12)] transition-shadow duration-300 overflow-hidden">
@@ -61,7 +62,7 @@ const APropos = () => {
                   <span className="inline-flex items-center justify-center w-11 h-11 rounded-2xl bg-[var(--sky-ice)] shrink-0">
                     <Users className="text-[var(--sky)]" size={24} />
                   </span>
-                  Démocratie Indirecte
+                  Démocratie Directe
                 </h3>
               </div>
 
