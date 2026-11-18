@@ -62,7 +62,7 @@ const APropos = () => {
                   <span className="inline-flex items-center justify-center w-11 h-11 rounded-2xl bg-[var(--sky-ice)] shrink-0">
                     <Users className="text-[var(--sky)]" size={24} />
                   </span>
-                  Démocratie Computing
+                  Démocratie Directe
                 </h3>
               </div>
 
