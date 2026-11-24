@@ -1,6 +1,9 @@
 node_modules
 npm-debug.log
 .env
+.env.*
+**/.env
+**/.env.*
 .git
 .gitignore
 Dockerfile
@@ -8,3 +11,8 @@ Dockerfile
 coverage
 .vscode
 .idea
+backups
+*.dump
+*.backup
+*.bak
+*.avant_*

@@ -1,0 +1,211 @@
+{
+  "nav": {
+    "accueil": "Accueil",
+    "apropos": "À propos",
+    "activites": "Activités",
+    "interventions": "Interventions",
+    "realisations": "Réalisations",
+    "contact": "Contact",
+    "admin": "Admin ONG"
+  },
+  "hero": {
+    "label": "Formation et Développement",
+    "title": "Construisons l'avenir malagasy",
+    "description": "Réduction durable de la pauvreté par l'autonomie des communautés vulnérables.",
+    "support": "Nous soutenir",
+    "activities": "Nos activités",
+    "scroll": "Découvrir"
+  },
+  "common": {
+    "loading": "Chargement...",
+    "language": "Choisir la langue",
+    "openMenu": "Ouvrir le menu",
+    "closeMenu": "Fermer le menu",
+    "retry": "Réessayer"
+  },
+  "team": {
+    "label": "Staff & Expertise",
+    "title": "Ceux qui font la différence.",
+    "empty": "Aucun membre trouvé",
+    "error": "Impossible de charger les membres de l'équipe.",
+    "loading": "Chargement de l'équipe..."
+  },
+  "methodology": {
+    "label": "Piliers d'intervention",
+    "title": "Notre méthodologie.",
+    "solidarity": {
+      "title": "Les Groupes de Solidarité (GS)",
+      "description": "Le Groupe de Solidarité (GS) représente l’espace central de participation citoyenne, où les membres exercent une démocratie directe garantissant à chacun la liberté de parole. Son fonctionnement repose sur trois piliers essentiels : l’information, la formation et l’accompagnement-conseil, qui soutiennent l’engagement des membres. Pour assurer une gestion transparente, le GS procède à l’élection ouverte d’un bureau permanent composé d’un président, d’un trésorier et d’un secrétaire, tous investis dans la défense de l’intérêt collectif. Les décisions majeures sont systématiquement prises en Assemblée Générale (AG), réunissant l’ensemble des membres.",
+      "details": [
+        "Épargne commune (riz, argent)",
+        "Crédits internes sans usuriers",
+        "Principe « On suitle plus faible »",
+        "Gestion transparente par bureau élu"
+      ]
+    },
+    "training": {
+      "title": "Formations & Production",
+      "description": "Ce programme s’adresse en priorité aux personnes les plus vulnérables et marginalisées, confrontées à de fortes difficultés d’accès aux ressources naturelles indispensables à la production. L’appui repose sur une formation solide aux principes de l’agroécologie, renforcée par la mise à disposition de semences locales communautaires, garantissant l’autonomie et la diversité des cultures. Parallèlement, une éducation nutritionnelle valorise la production locale et favorise une alimentation saine et équilibrée pour toutes les familles. Enfin, des formations transversales portant sur la gestion du temps, l’égalité de genre et l’adaptation au changement climatique viennent compléter ce dispositif, afin de renforcer la résilience globale des bénéficiaires.",
+      "details": [
+        "Bases de l’agroécologie",
+        "Éducation nutritionnelle",
+        "Genre & Climat",
+        "Multiplication et conservation des semences locales"
+      ]
+    },
+    "networks": {
+      "title": "Les Réseaux",
+      "description": "Le réseau constitue une véritable plateforme d’échange et de concertation entre les différents Groupes de Solidarité, leur permettant d’unir leurs forces pour relever les défis du développement local et progresser vers une autonomie durable. Une action stratégique clé réside dans l’intégration des membres au sein de la Structure Locale de Concertation (SLC), afin de renforcer le lobbying et le plaidoyer auprès des instances décisionnelles. Le réseau accompagne également ses membres dans l’élaboration et la présentation de plans de développement structurés aux autorités locales, contribuant ainsi à influencer les politiques publiques. Outre la défense des droits civiques, il encourage des initiatives communes visant à sécuriser l’accès aux ressources vitales telles que l’eau potable, lefoncier et une agriculture durable. Enfin, ce mouvement consolide la solidarité entre les groupements, les positionnant comme des acteurs incontournables du progrès social et économique régional.",
+      "details": [
+        "Lobbying & Plaidoyer (SLC)",
+        "Défense des droits civiques",
+        "Accès à l’eau & Foncier",
+        "Planification locale"
+      ]
+    }
+  },
+  "approach": {
+    "label": "Philosophie",
+    "title": "L'effort propre.",
+    "savings": {
+      "title": "Épargne Collective",
+      "description": "La mise en place d’une épargne collective constitue une réponse concrète pour briser le cycle de l’endettement. Les petites cotisations hebdomadaires se transforment en un capital communautaire géré de manière transparente. Ce fonds permet d’accorder des crédits internes à des taux équitables, offrant aux paysans la possibilité de se libérer de l’usure et de retrouver leur dignité ainsi qu’une véritable indépendance financière."
+    },
+    "inclusion": {
+      "title": "Inclusion Totale",
+      "description": "Ce principe garantit que le rythme de progression de l’ensemble du groupe s’ajuste systématiquement sur les capacités des membres les plus vulnérables afin de ne laisser personne de côté. Enplaçant l’humain avant la performance technique, cette approche renforce la cohésion sociale et assure que chaque avancée bénéficie réellement à toutes et à tous, sans exception."
+    },
+    "impact": "Impact communautaire",
+    "democracy": "Démocratie Directe",
+    "consensus": "Consensus & Solidarité"
+  },
+  "about": {
+    "label": "Qui sommes-nous",
+    "title": "Soutenir les plus démunis",
+    "presentation": {
+      "label": "",
+      "title": "",
+      "paragraphs": [
+        "L’action de Tsinjo Aina s’oriente prioritairement vers les personnes les plus vulnérables et marginalisées : celles privées de terres et de moyens de production, les personnes âgées, ainsi que celles vivant avec un handicap physique ou mental. Ces groupes, souvent laissés de côté par les circuits classiques du développement, rencontrent de profondes difficultés pour accéder aux ressources naturelles indispensables à leur survie.",
+        "Pour rompre ce cercle d’exclusion, l’organisation les intègre dans des Groupes de Solidarité (GS), fondés sur une règle d’inclusion radicale : « suivre le plus faible ». Concrètement, la progression collective s’adapte au rythme des membres les plus fragiles, garantissant que personnene soit abandonné en chemin.",
+        "À travers cette démarche, Tsinjo Aina transforme ces bénéficiaires en citoyens responsables, capables de gérer leur propre effort et de construire leur autonomie. Les objectifs sont clairs : sortir du cycle de l’endettement auprès des usuriers, atteindre la souveraineté alimentaire grâce à l’agroécologie, et obtenir une pleine reconnaissance civique au sein des instances locales de décision."
+      ]
+    },
+    "democracy": {
+      "label": "Méthodologie",
+      "title": "Démocratie Directe",
+      "paragraphs": [
+        "Au sein des Groupes de Solidarité (GS), la démocratie directe s’exprime à traversune organisation horizontale. Chaque groupement devient une cellule d’apprentissage citoyen, où tousles membres disposent d’un droit égal de parole et d’influence sur les décisions collectives. Contrairement aux systèmes classiques fondés sur le vote majoritaire, les résolutions émergent d’un processus exigeant de débat approfondi, visant toujours l’obtention d’un consensus. Ainsi, chaque décision est portée par l’ensemble des participants.",
+        "Cette structure est coordonnée par un bureau permanent – président, trésorier et secrétaire – élu de manière ouverte et transparente. Ces responsables n’exercent aucun pouvoir hiérarchique : leur rôle est exclusivement de service, au bénéfice du collectif.",
+        "Enfin, cette démocratie se veut résolument inclusive grâce au principe du « suivre le plus faible ». Le rythme de progression et les règles du groupe s’ajustent en fonction de sa maturité, afin de protéger et d’intégrer pleinement les membres les plus démunis ou marginalisés."
+      ],
+      "committee": {
+        "title": "Bureau Permanent",
+        "description": "Élu ouvertement : Président, Trésorier, Secrétaire."
+      },
+      "inclusion": {
+        "title": "Inclusion Totale",
+        "description": "« On suit le plus faible »"
+      }
+    },
+    "history": {
+      "label": "Parcours",
+      "title": "Notre Histoire",
+      "paragraphs": [
+        "Le Projet Fianarantsoa a vu le jour en 1998, dans la partie sud de la région, à Ambalavao, sous la forme d’une initiative individuelle. Rapidement, il s’est étendu vers le nord en 2001 puis en 2003, amorçant une dynamique de croissance continue. En 2009, pour soutenir et structurer cette démarche, l’Association Tsinjo Aina Betsileo a été fondée. Quelques années plus tard, en décembre 2016, elle a évolué pour devenir l’ONG TSINJO AINA Fianarantsoa.",
+        "Aujourd’hui, l’organisation accompagne directement près de 25 000 bénéficiaires, dont 11 800 femmes, et touche indirectement plus de 58 400 personnes supplémentaires. Sa mission est d’améliorer les conditions de vie et de renforcer l’autonomie des communautés locales, en particulier des femmes, à través des projets sociaux, économiques et environnementaux.",
+        "L’approche adoptée repose sur la mobilisation des efforts communautaires : encourager les groupes à concevoir et gérer leurs propres initiatives de développement durable. L’ONG œuvre également à raviver la solidarité communautaire, une valeur profondément enracinée dans l’histoire Malagasy mais qui s’est progressivement effritée. Elle met l’accent sur le renforcement des capacités, l’acquisition de compétences et la sensibilisation, afin de promouvoir un développement à la fois durable et souverain."
+      ]
+    },
+    "foundations": "Nos Fondements",
+    "vision": {
+      "title": "Vision :",
+      "description": "Faire de chaque bénéficiaire un citoyen responsable, prenant en main son développement et vivant en harmonie dans une société équitable."
+    },
+    "mission": {
+      "title": "Mission :",
+      "description": "Œuvrer pour le développement humain durable, l’autopromotion des communautés et laprotection de l’environnement."
+    },
+    "values": {
+      "title": "Nos valeurs :",
+      "description": "Notre action est guidée par le développement par l'effort propre, la volonté de nelaisser personne de côté et une approche stricte sans aucune discrimination."
+    },
+    "cta": {
+      "label": "Engagement",
+      "title": "« Effort Propre & Solidarité »",
+      "description": "Rejoignez-nous pour un développement humain durable.",
+      "button": "Voir nos activités"
+    }
+  },
+  "activities": {
+    "label": "Nos domaines d'action",
+    "title": "Nos Activités",
+    "description": "Transformer la précarité en souveraineté à travers l'effort propre et la solidarité communautaire.",
+    "solidarity": {
+      "title": "Groupes de Solidarité (GS)",
+      "subtitle": "L'Humain au cœur du système",
+      "description": "La base de l'Action Tsinjo Aina repose sur la constitution de groupes informels soudés par la confiance.",
+      "details": "Pour fonctionner efficacement, chaque Groupe de Solidarité (GS) se structure en désignant trois responsables : un(e) Président(e), un(e) Trésorier(e) et un(e) Secrétaire, élus de manière ouverte et transparente. Cette organisation minimale est indispensable pour accomplir les tâches spécifiques du groupe, bien que les responsables ne disposent d'aucune prérogative particulière, assumant simplement des responsabilités supplémentaires dans l'intérêt de tous. Le GS sert ainsi de cellulede base pour l'apprentissage de la démocratie directe, où chaque membre peut s'exprimer lors de débats collectifs visant à atteindre un consensus sain pour la prise de décision. Ce fonctionnement est encadré par un Règlement Intérieur (RI) établi dès la création, qui définit les choix du groupement etévolue progressivement selon la maturation et les progrès des membres.",
+      "points": [
+        "Solidarité et confiance",
+        "Décisions par consensus",
+        "Équilibre hommes/femmes",
+        "Règlement évolutif"
+      ]
+    },
+    "savings": {
+      "title": "Épargne et Crédit Interne",
+      "subtitle": "Autodéfense économique",
+      "description": "L'épargne commune est l'arme principale de libération des membres face aux usuriers.",
+      "details": "L'épargne commune constitue l'outil principal de libération et d'autodéfense des membres, pouvant prendre la forme d'argent ou de produits agricoles comme le riz, dont la valeur augmente stratégiquement durant la période de soudure. Pour garantir une inclusion totale, le groupement applique le principe fondamental « On suit le plus faible », ajustant le taux de cotisation pour permettre aux membres les plus nécessiteux de participer activement. Cette épargne permet d'octroyer des crédits internes strictement réservés aux besoins vitaux tels que la nourriture, la santé ou l'écolage ainsi qu'à l'achat de semences, offrant ainsi une alternative concrète pour éviter le recours aux usuriers. Afin de protéger les plus vulnérables, la gestion est encadrée par un plafond d'emprunt garantissant l'équité, des délais de remboursement réalistes et un taux d'intérêt nul ou très modeste.",
+      "points": [
+        "Épargne en riz ou argent",
+        "Lutte contre l'usure",
+        "Inclusion des vulnérables",
+        "Gestion rigoureuse"
+      ]
+    },
+    "agroecology": {
+      "title": "Agroécologie et Souveraineté",
+      "subtitle": "Produire pour nourrir sainement",
+      "description": "Nous formons les membres aux bases de l'agroécologie pour augmenter la production familiale.",
+      "details": "L'agroécologie au sein de l'ONG Tsinjo Aina vise à transformer la précarité en souveraineté alimentaire en agissant directement sur les charges d'exploitation et la qualité de la nutrition des familles. Au cœur de cette démarche, les membres apprennent à fabriquer du compost et à installer des haies vives pour fertiliser et protéger leurs terres à moindre coût. L'action se concentre également sur la création de banques de semences communautaires et l'augmentation de la diversité des variétés locales disponibles, ce qui permet aux paysans de s'affranchir des intrants coûteux et de garantir une alimentation saine et durable pour leurs foyers. Cette souveraineté est renforcée par des formations spécifiques sur le changement climatique et la gestion familiale, permettant aux bénéficiaires de maîtriser leur production sur le long terme.",
+      "points": [
+        "Compostage & Haies vives",
+        "Multiplication & Conservation",
+        "Éducation nutritionnelle",
+        "Adaptation au climat"
+      ]
+    },
+    "networks": {
+      "title": "Réseautage et Plaidoyer",
+      "subtitle": "Une voix pour les exclus",
+      "description": "Le Réseau Tsinjo Aina regroupe les GS pour porter des plaidoyers au niveau communal.",
+      "details": "Le réseautage au sein de l'Action Tsinjo Aina s'organise à travers des plates-formesinformelles au niveau des Fokontany, permettant aux groupements de proximité de se concerter régulièrement pour renforcer leur autonomie et atteindre le désendettement. Ces rencontres, qui favorisent l'échange et le conseil mutuel, servent de base à un plaidoyer structuré où les membres intègrent les Structures Locales de Concertation (SLC) pour porter leurs revendications auprès des autorités. Cettedynamique collective permet de définir des priorités d'action commune, telles que la défense des droits civiques, la sécurisation foncière, l'accès à l'eau potable et l'agriculture adaptée, transformant ainsi le réseau en un véritable levier d'influence pour l'accès aux services de base et le développement local.",
+      "points": [
+        "Conseils entre groupes",
+        "Plaidoyer citoyen",
+        "Sécurisation foncière",
+        "Diagnostic participatif"
+      ]
+    },
+    "programs": {
+      "label": "Programmes",
+      "title": "Domaines de Formation",
+      "items": [
+        "Gestion Simplifiée",
+        "Agroécologie",
+        "Genre",
+        "Nutrition",
+        "Plaidoyer",
+        "Climat"
+      ]
+    },
+    "cta": {
+      "label": "Engagement",
+      "title": "Bâtissons l'autonomie.",
+      "description": "Nous ciblons les personnes les plus démunies pour transformer l'exclusion en force collective.",
+      "button": "Travailler avec nous"
+    }
+  }
+}

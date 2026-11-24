@@ -189,7 +189,27 @@ trap rollback ERR
 sed -i "s/^VERSION=.*/VERSION=$VERSION/" .env
 
 "${COMPOSE[@]}" config --quiet
+
+echo "Sauvegarde PostgreSQL avant migration..."
+umask 077
+BACKUP_DIR="$HOME/backups/ong-site"
+mkdir -p "$BACKUP_DIR"
+DB_BACKUP="$BACKUP_DIR/site_db_$(date +%Y%m%d_%H%M%S)_$OLD_VERSION.dump"
+
+"${COMPOSE[@]}" exec -T postgres pg_dump -U postgres -d site_db -Fc > "$DB_BACKUP"
+test -s "$DB_BACKUP"
+"${COMPOSE[@]}" exec -T postgres pg_restore --list < "$DB_BACKUP" >/dev/null
+
+echo "Sauvegarde vérifiée : $DB_BACKUP"
+
+echo "Téléchargement des nouvelles images..."
 "${COMPOSE[@]}" pull backend frontend
+
+echo "Application de la migration PostgreSQL..."
+docker run --rm --entrypoint cat   "ghcr.io/el-junior11/ong-site-backend:$VERSION"   /app/migrations/001_intervention_translations.sql |   "${COMPOSE[@]}" exec -T postgres   psql -U postgres -d site_db -v ON_ERROR_STOP=1
+
+echo "Migration PostgreSQL terminée"
+
 "${COMPOSE[@]}" up -d --no-deps backend frontend
 
 echo "Attente du démarrage du frontend..."
@@ -208,6 +228,23 @@ done
 
 if [ "$READY" -ne 1 ]; then
   echo "ERREUR : frontend indisponible après 20 tentatives"
+  false
+fi
+
+echo "Vérification de l'API backend..."
+
+API_READY=0
+for i in $(seq 1 20); do
+  if curl --fail --silent --max-time 10     http://127.0.0.1:8087/api/interventions |     python3 -c 'import json,sys; assert isinstance(json.load(sys.stdin),list)'     >/dev/null 2>&1; then
+    API_READY=1
+    echo "API backend opérationnelle"
+    break
+  fi
+  sleep 3
+done
+
+if [ "$API_READY" -ne 1 ]; then
+  echo "ERREUR : API backend indisponible"
   false
 fi
 

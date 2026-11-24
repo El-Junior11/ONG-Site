@@ -1,14 +1,25 @@
+# Dépendances et compilation
 node_modules/
-backend/.env
-.env
-**/.env
-backups/
+dist/
+coverage/
 
-# Secrets et sauvegardes
+# Secrets
 .env
 .env.*
 **/.env
 **/.env.*
+!.env.example
+!**/.env.example
+
+# Sauvegardes
 backups/
 *.dump
 *.backup
+*.bak
+*.avant_*
+
+# Logs et fichiers temporaires
+*.log
+.vscode/
+.idea/
+.DS_Store

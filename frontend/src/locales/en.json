@@ -1,0 +1,211 @@
+{
+  "nav": {
+    "accueil": "Home",
+    "apropos": "About us",
+    "activites": "Activities",
+    "interventions": "Interventions",
+    "realisations": "Achievements",
+    "contact": "Contact",
+    "admin": "NGO Admin"
+  },
+  "hero": {
+    "label": "Training and Development",
+    "title": "Building Madagascar's future",
+    "description": "Sustainable poverty reduction through the empowerment of vulnerable communities.",
+    "support": "Support us",
+    "activities": "Our activities",
+    "scroll": "Discover"
+  },
+  "common": {
+    "loading": "Loading...",
+    "language": "Choose language",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "retry": "Try again"
+  },
+  "team": {
+    "label": "Team & Expertise",
+    "title": "Those who make a difference.",
+    "empty": "No team members found",
+    "error": "Unable to load team members.",
+    "loading": "Loading team members..."
+  },
+  "methodology": {
+    "label": "Pillars of intervention",
+    "title": "Our methodology.",
+    "solidarity": {
+      "title": "Solidarity Groups (GS)",
+      "description": "The Solidarity Group (GS) is a central platform for civic participation, where members practice direct democracy and everyone is guaranteed freedom of expression. Its operation is based on three essential pillars: information, training, and advisory support, which encourage member engagement. To ensure transparent management, the group openly elects a permanent committee consisting of a president, a treasurer and a secretary, all committed to protecting collective interests. Major decisions are systematically made during General Assemblies involving all members.",
+      "details": [
+        "Collective savings (rice and money)",
+        "Internal loans without usurious lending",
+        "Progress at the pace of the most vulnerable",
+        "Transparent management by an elected committee"
+      ]
+    },
+    "training": {
+      "title": "Training & Production",
+      "description": "This programme primarily supports vulnerable and marginalised people facing significant difficulties in accessing the natural resources required for production. Support is based on comprehensive agroecology training, complemented by access to community-managed local seeds, promoting autonomy and crop diversity. Nutritional education also promotes local production and encourages healthy, balanced diets for all families. Additional training in time management, gender equality and climate change adaptation strengthens the overall resilience of beneficiaries.",
+      "details": [
+        "Fundamentals of agroecology",
+        "Nutritional education",
+        "Gender & Climate",
+        "Multiplication and conservation of local seeds"
+      ]
+    },
+    "networks": {
+      "title": "Community Networks",
+      "description": "The network provides a platform for exchange and consultation between Solidarity Groups, enabling them to unite their efforts to address local development challenges and achieve sustainable autonomy. A key strategic action involves integrating members into Local Consultation Structures (SLC) to strengthen lobbying and advocacy with decision-makers. The network also supports members in developing and presenting structured development plans to local authorities, helping to influence public policies. Alongside defending civic rights, it promotes joint initiatives to secure access to essential resources, including drinking water, land and sustainable agriculture. Finally, this movement strengthens solidarity between groups, positioning them as key contributors to regional social and economic progress.",
+      "details": [
+        "Lobbying & Advocacy (SLC)",
+        "Protection of civic rights",
+        "Access to water & land",
+        "Local development planning"
+      ]
+    }
+  },
+  "approach": {
+    "label": "Philosophy",
+    "title": "Self-reliance.",
+    "savings": {
+      "title": "Collective Savings",
+      "description": "Collective savings provide a practical solution to breaking the cycle of debt. Small weekly contributions gradually become community capital managed transparently. This fund enables members to access internal loans at fair interest rates, helping farmers escape usurious lending, restore their dignity and achieve genuine financial independence."
+    },
+    "inclusion": {
+      "title": "Full Inclusion",
+      "description": "This principle ensures that the group's pace of progress is consistently adapted to the capacities of its most vulnerable members, leaving no one behind. By placing people before technical performance, this approach strengthens social cohesion and ensures that every achievement benefits everyone without exception."
+    },
+    "impact": "Community impact",
+    "democracy": "Direct Democracy",
+    "consensus": "Consensus & Solidarity"
+  },
+  "about": {
+    "label": "Who we are",
+    "title": "Supporting the most disadvantaged",
+    "presentation": {
+      "label": "",
+      "title": "",
+      "paragraphs": [
+        "Tsinjo Aina's work primarily focuses on the most vulnerable and marginalised people: those deprived of land and means of production, older people, and those living with physical or mental disabilities. These groups, often excluded from conventional development channels, face significant difficulties in accessing the natural resources essential to their survival.",
+        "To break this cycle of exclusion, the organisation integrates them into Solidarity Groups (GS), founded on a radical principle of inclusion: « following the weakest ». In practice, collective progress adapts to the pace of the most vulnerable members, ensuring that no one is left behind along the way.",
+        "Through this approach, Tsinjo Aina transforms these beneficiaries into responsible citizens capable of managing their own efforts and building their autonomy. The objectives are clear: to escape the cycle of indebtedness to usurious lenders, achieve food sovereignty through agroecology, and obtain full civic recognition within local decision-making bodies."
+      ]
+    },
+    "democracy": {
+      "label": "Methodology",
+      "title": "Direct Democracy",
+      "paragraphs": [
+        "Within Solidarity Groups (GS), direct democracy is expressed through a horizontal organisational structure. Each group becomes a unit for civic learning, where all members have an equal right to speak and influence collective decisions. Unlike conventional systems based on majority voting, resolutions emerge from a demanding process of in-depth discussion that always seeks consensus. Each decision is therefore supported by all participants.",
+        "This structure is coordinated by a permanent committee consisting of a president, a treasurer and a secretary, elected openly and transparently. These representatives exercise no hierarchical authority: their role is exclusively one of service for the benefit of the collective.",
+        "Finally, this democracy is firmly committed to inclusion through the principle of « following the weakest ». The group's pace of progress and rules are adjusted according to its maturity, in order to protect and fully include its most disadvantaged or marginalised members."
+      ],
+      "committee": {
+        "title": "Permanent Committee",
+        "description": "Openly elected: President, Treasurer, Secretary."
+      },
+      "inclusion": {
+        "title": "Full Inclusion",
+        "description": "« We follow the weakest »"
+      }
+    },
+    "history": {
+      "label": "Our journey",
+      "title": "Our History",
+      "paragraphs": [
+        "The Fianarantsoa Project began in 1998 in the southern part of the region, in Ambalavao, as an individual initiative. It rapidly expanded northwards in 2001 and then in 2003, initiating a process of continuous growth. In 2009, the Tsinjo Aina Betsileo Association was founded to support and structure this approach. A few years later, in December 2016, it evolved into ONG TSINJO AINA Fianarantsoa.",
+        "Today, the organisation directly supports nearly 25,000 beneficiaries, including 11,800 women, and indirectly reaches more than 58,400 additional people. Its mission is to improve living conditions and strengthen the autonomy of local communities, particularly women, through social, economic and environmental projects.",
+        "The adopted approach is based on mobilising community efforts: encouraging groups to design and manage their own sustainable development initiatives. The NGO also works to revive community solidarity, a value deeply rooted in Malagasy history but which has gradually eroded. It focuses on capacity building, skills acquisition and awareness-raising to promote development that is both sustainable and sovereign."
+      ]
+    },
+    "foundations": "Our Foundations",
+    "vision": {
+      "title": "Vision:",
+      "description": "To make every beneficiary a responsible citizen who takes charge of their own development and lives in harmony within an equitable society."
+    },
+    "mission": {
+      "title": "Mission:",
+      "description": "To work towards sustainable human development, community self-development and environmental protection."
+    },
+    "values": {
+      "title": "Our values:",
+      "description": "Our work is guided by development through self-reliance, the commitment to leaving no one behind, and a strict approach without any discrimination."
+    },
+    "cta": {
+      "label": "Commitment",
+      "title": "« Self-reliance & Solidarity »",
+      "description": "Join us in promoting sustainable human development.",
+      "button": "View our activities"
+    }
+  },
+  "activities": {
+    "label": "Our areas of action",
+    "title": "Our Activities",
+    "description": "Transforming vulnerability into sovereignty through self-reliance and community solidarity.",
+    "solidarity": {
+      "title": "Solidarity Groups (GS)",
+      "subtitle": "People at the heart of the system",
+      "description": "The foundation of Tsinjo Aina's work lies in the formation of informal groups united by trust.",
+      "details": "To operate effectively, each Solidarity Group (GS) structures itself by appointing three representatives: a President, a Treasurer and a Secretary, elected openly and transparently. This basic organisation is essential for carrying out the group's specific tasks, although the representatives have no special privileges and simply assume additional responsibilities in the interests of everyone. The GS thus serves as a basic unit for learning direct democracy, where every member can express their views during collective discussions aimed at reaching a sound consensus for decision-making. This operation is governed by Internal Regulations (RI) established when the group is created, which define the group's choices and evolve progressively according to the maturity and progress of its members.",
+      "points": [
+        "Solidarity and trust",
+        "Consensus-based decisions",
+        "Gender balance",
+        "Evolving internal regulations"
+      ]
+    },
+    "savings": {
+      "title": "Savings and Internal Credit",
+      "subtitle": "Economic self-protection",
+      "description": "Collective savings are the main instrument for freeing members from usurious lenders.",
+      "details": "Collective savings constitute the main instrument of liberation and self-protection for members. They may take the form of money or agricultural products such as rice, whose value increases strategically during the lean season. To ensure full inclusion, the group applies the fundamental principle of « We follow the weakest », adjusting contribution rates so that the most disadvantaged members can participate actively. These savings enable internal loans to be granted strictly for essential needs such as food, healthcare, school fees and the purchase of seeds, thereby providing a practical alternative to relying on usurious lenders. To protect the most vulnerable, management is governed by a borrowing limit that ensures fairness, realistic repayment periods and a zero or very modest interest rate.",
+      "points": [
+        "Rice or monetary savings",
+        "Combating usury",
+        "Inclusion of vulnerable people",
+        "Rigorous management"
+      ]
+    },
+    "agroecology": {
+      "title": "Agroecology and Sovereignty",
+      "subtitle": "Producing healthy food",
+      "description": "We train members in the fundamentals of agroecology to increase household production.",
+      "details": "Agroecology within the NGO Tsinjo Aina aims to transform vulnerability into food sovereignty by acting directly on operating costs and the quality of family nutrition. At the heart of this approach, members learn to produce compost and establish living hedges to fertilise and protect their land at a lower cost. The work also focuses on creating community seed banks and increasing the diversity of available local varieties, enabling farmers to free themselves from costly agricultural inputs and ensure healthy and sustainable food for their households. This sovereignty is strengthened through specific training on climate change and household management, enabling beneficiaries to control their production over the long term.",
+      "points": [
+        "Composting & Living hedges",
+        "Multiplication & Conservation",
+        "Nutritional education",
+        "Climate adaptation"
+      ]
+    },
+    "networks": {
+      "title": "Networking and Advocacy",
+      "subtitle": "A voice for the excluded",
+      "description": "The Tsinjo Aina Network brings together Solidarity Groups to conduct advocacy at municipal level.",
+      "details": "Networking within Tsinjo Aina's work is organised through informal platforms at Fokontany level, allowing neighbouring groups to consult regularly in order to strengthen their autonomy and become free from debt. These meetings, which encourage exchange and mutual advice, form the basis of structured advocacy in which members join Local Consultation Structures (SLC) to present their demands to the authorities. This collective dynamic makes it possible to define priorities for joint action, such as defending civic rights, securing land tenure, accessing drinking water and developing adapted agriculture, thereby transforming the network into a genuine instrument of influence for access to basic services and local development.",
+      "points": [
+        "Advice between groups",
+        "Citizen advocacy",
+        "Land tenure security",
+        "Participatory assessment"
+      ]
+    },
+    "programs": {
+      "label": "Programmes",
+      "title": "Training Areas",
+      "items": [
+        "Simplified Management",
+        "Agroecology",
+        "Gender",
+        "Nutrition",
+        "Advocacy",
+        "Climate"
+      ]
+    },
+    "cta": {
+      "label": "Commitment",
+      "title": "Let us build autonomy.",
+      "description": "We target the most disadvantaged people to transform exclusion into collective strength.",
+      "button": "Work with us"
+    }
+  }
+}

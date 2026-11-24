@@ -1,0 +1,211 @@
+{
+  "nav": {
+    "accueil": "Fandraisana",
+    "apropos": "Momba anay",
+    "activites": "Asa ataonay",
+    "interventions": "Sehatra iasana",
+    "realisations": "Zava-bita",
+    "contact": "Fifandraisana",
+    "admin": "Mpitantana ONG"
+  },
+  "hero": {
+    "label": "Fanofanana sy Fampandrosoana",
+    "title": "Andao hiara-hanorina ny hoavin'i Madagasikara",
+    "description": "Fampihenana maharitra ny fahantrana amin'ny alalan'ny fanamafisana ny fahaleovantenan'ireo vondrom-piarahamonina marefo.",
+    "support": "Tohano izahay",
+    "activities": "Ny asa ataonay",
+    "scroll": "Hijery bebe kokoa"
+  },
+  "common": {
+    "loading": "Eo am-pampidirana...",
+    "language": "Safidio ny fiteny",
+    "openMenu": "Sokafy ny menio",
+    "closeMenu": "Akatona ny menio",
+    "retry": "Andramo indray"
+  },
+  "team": {
+    "label": "Ekipa sy Fahaiza-manao",
+    "title": "Ireo mitondra fiovana.",
+    "empty": "Tsy misy mpikambana hita",
+    "error": "Tsy afaka nampiditra ny mombamomba ny ekipa.",
+    "loading": "Eo am-pampidirana ny mombamomba ny ekipa..."
+  },
+  "methodology": {
+    "label": "Andry iorenan'ny asa",
+    "title": "Ny fomba fiasanay.",
+    "solidarity": {
+      "title": "Vondrona Fifanampiana (GS)",
+      "description": "Ny Vondrona Fifanampiana (GS) dia sehatra fototra andraisan'ny olom-pirenena anjara, izay ampiharana ny demokrasia mivantana sy ny fahalalahana maneho hevitra. Andry telo no iorenan'ny fiasany: ny fampahalalana, ny fanofanana ary ny fanohanana sy fanoroana hevitra. Mba hiantohana ny fitantanana mangarahara dia mifidy an-kalalahana birao maharitra ahitana filoha, mpitam-bola ary mpitan-tsoratra ny vondrona, izay samy miaro ny tombontsoa iombonana. Raisina mandritra ny Fivoriambe iarahan'ny mpikambana rehetra ny fanapahan-kevitra lehibe.",
+      "details": [
+        "Tahiry iombonana (vary sy vola)",
+        "Fampindramam-bola anatiny tsy misy zanabola mihoa-pampana",
+        "Fitsipika manaraka ny hafainganam-pandroson'ny marefo indrindra",
+        "Fitantanana mangarahara ataon'ny birao voafidy"
+      ]
+    },
+    "training": {
+      "title": "Fanofanana sy Famokarana",
+      "description": "Ity fandaharanasa ity dia natao indrindra ho an'ireo olona marefo sy voahilikilika izay sahirana amin'ny fahazoana ny harena voajanahary ilaina amin'ny famokarana. Ny fanohanana dia mifototra amin'ny fanofanana momba ny fambolena ara-tontolo iainana sy ny fanomezana masomboly eo an-toerana tantanin'ny vondrom-piarahamonina, mba hanamafisana ny fahaleovantena sy ny fahasamihafan'ny voly. Ny fanabeazana ara-tsakafo kosa dia manome lanja ny vokatra eo an-toerana sy mampiroborobo ny sakafo ara-pahasalamana sy voalanjalanja ho an'ny fianakaviana. Ampiana fanofanana momba ny fitantanana fotoana, ny fitovian-jo eo amin'ny lahy sy ny vavy ary ny fiatrehana ny fiovaovan'ny toetrandro izany, mba hanamafisana ny fahafahan'ny mpisitraka miatrika fahasahiranana.",
+      "details": [
+        "Fototry ny fambolena ara-tontolo iainana",
+        "Fanabeazana ara-tsakafo",
+        "Fitovian-jo sy Toetrandro",
+        "Fampitomboana sy fitahirizana masomboly eo an-toerana"
+      ]
+    },
+    "networks": {
+      "title": "Tambajotra",
+      "description": "Ny tambajotra dia sehatra ifanakalozan-kevitra sy ifampidinihan'ireo Vondrona Fifanampiana, ahafahan'izy ireo mampiray hery hiatrehana ny olan'ny fampandrosoana eo an-toerana sy hahazoana fahaleovantena maharitra. Anisan'ny paikady lehibe ny fampidirana ireo mpikambana ao amin'ny Rafitra Ifampidinihana eo An-toerana (SLC), mba hanamafisana ny fisoloana vava sy ny fandresen-dahatra ireo mpanapa-kevitra. Manohana ny mpikambana amin'ny famolavolana sy fanolorana drafi-pampandrosoana amin'ny manampahefana eo an-toerana ihany koa ny tambajotra, ka mandray anjara amin'ny famolavolana ny politikam-panjakana. Ankoatra ny fiarovana ny zon'ny olom-pirenena dia mampiroborobo ny fiaraha-mientana hahazoana rano fisotro madio, tany ary fambolena maharitra izy. Manamafy ny firaisankinan'ny vondrona izany ary mahatonga azy ireo ho mpandray anjara lehibe amin'ny fampandrosoana ara-tsosialy sy ara-toekarena isam-paritra.",
+      "details": [
+        "Fisoloana vava sy fandresen-dahatra (SLC)",
+        "Fiarovana ny zon'ny olom-pirenena",
+        "Fahazoana rano sy tany",
+        "Fandrafetana drafitra eo an-toerana"
+      ]
+    }
+  },
+  "approach": {
+    "label": "Foto-kevitra",
+    "title": "Ezaka avy amin'ny tena.",
+    "savings": {
+      "title": "Tahiry Iombonana",
+      "description": "Ny fananganana tahiry iombonana dia vahaolana mivaingana hialana amin'ny vesatry ny trosa. Ny latsakemboka kely isan-kerinandro dia mitambatra ho renivola iombonana tantanina amin'ny fomba mangarahara. Io tahiry io dia ahafahana manome fampindramam-bola anatiny amin'ny zanabola ara-drariny, mba hahafahan'ny tantsaha miala amin'ny fampindramam-bola misy zanabola mihoa-pampana, mamerina ny fahamendrehany ary mahazo fahaleovantena ara-bola."
+    },
+    "inclusion": {
+      "title": "Fandraisan'ny Rehetra Anjara",
+      "description": "Ity fitsipika ity dia miantoka fa mifanaraka amin'ny fahafahan'ireo mpikambana marefo indrindra ny hafainganam-pandroson'ny vondrona, mba tsy hisy ho tavela. Ny fanomezana lanja ny maha-olona alohan'ny vokatra ara-teknika dia manamafy ny firaisankina ary miantoka fa misitraka ny fandrosoana ny rehetra, tsy an-kanavaka."
+    },
+    "impact": "Fiantraikany eo amin'ny fiarahamonina",
+    "democracy": "Demokrasia Mivantana",
+    "consensus": "Fifanarahana sy Firaisankina"
+  },
+  "about": {
+    "label": "Momba anay",
+    "title": "Manohana ireo tena sahirana",
+    "presentation": {
+      "label": "",
+      "title": "",
+      "paragraphs": [
+        "Ny asa ataon'ny Tsinjo Aina dia miompana voalohany indrindra amin'ireo olona marefo sy voahilikilika: ireo tsy manana tany sy fitaovam-pamokarana, ireo zokiolona ary ireo manana fahasembanana ara-batana na ara-tsaina. Ireo sokajin'olona ireo, izay matetika tsy tafiditra ao anatin'ny rafitra mahazatra amin'ny fampandrosoana, dia miatrika fahasahiranana lehibe amin'ny fahazoana ireo harena voajanahary tena ilaina amin'ny fivelomany.",
+        "Mba hialana amin'izany fanilikilihana izany dia ampidirin'ny fikambanana ao anatin'ny Vondrona Fifanampiana (GS) izy ireo, izay mifototra amin'ny fitsipika hentitra momba ny fampandraisana anjara ny rehetra: « Manaraka ny marefo indrindra ». Amin'ny fampiharana izany, ny fandrosoana iombonana dia ampifanarahana amin'ny hafainganam-pandroson'ireo mpikambana marefo indrindra, mba hiantohana fa tsy misy olona avela ho tavela eny an-dalana.",
+        "Amin'ny alalan'izany fomba fiasa izany, ny Tsinjo Aina dia manampy ireo mpisitraka ho tonga olom-pirenena mandray andraikitra, afaka mitantana ny ezaka ataony sy manorina ny fahaleovantenany. Mazava ny tanjona: miala amin'ny fihodinan'ny trosa amin'ireo mpampindram-bola mampihatra zanabola mihoa-pampana, mahazo fahaleovantena ara-tsakafo amin'ny alalan'ny fambolena ara-tontolo iainana ary mahazo fankatoavana feno amin'ny maha-olom-pirenena eo anivon'ireo rafitra mpanapa-kevitra eo an-toerana."
+      ]
+    },
+    "democracy": {
+      "label": "Fomba fiasa",
+      "title": "Demokrasia Mivantana",
+      "paragraphs": [
+        "Ao anatin'ny Vondrona Fifanampiana (GS), ny demokrasia mivantana dia miseho amin'ny alalan'ny fandaminana tsy misy ambaratongam-pahefana. Ny vondrona tsirairay dia lasa sehatra fianarana ny maha-olom-pirenena, izay ananan'ny mpikambana rehetra zo mitovy hiteny sy handray anjara amin'ny fanapahan-kevitra iombonana. Tsy tahaka ireo rafitra mahazatra mifototra amin'ny latsa-baton'ny maro an'isa, ny fanapahan-kevitra dia vokatry ny fifanakalozan-kevitra lalina sy hentitra, izay mikendry hatrany ny hahazoana marimaritra iraisana. Noho izany, ny fanapahan-kevitra tsirairay dia tohanan'ny mpandray anjara rehetra.",
+        "Birao maharitra ahitana filoha, mpitam-bola ary mpitan-tsoratra, voafidy amin'ny fomba malalaka sy mangarahara, no mandrindra io rafitra io. Tsy manana fahefana ambony noho ny hafa ireo tompon'andraikitra ireo, fa ny fanompoana ho tombontsoan'ny vondrona ihany no andraikiny.",
+        "Farany, mikendry ny fampandraisana anjara feno ny rehetra izany demokrasia izany amin'ny alalan'ny fitsipika hoe « Manaraka ny marefo indrindra ». Ny hafainganam-pandrosoana sy ny fitsipiky ny vondrona dia ampifanarahana amin'ny fahamatorany, mba hiarovana sy hampandraisana anjara feno ireo mpikambana tena sahirana na voahilikilika."
+      ],
+      "committee": {
+        "title": "Birao Maharitra",
+        "description": "Voafidy an-kalalahana: Filoha, Mpitam-bola, Mpitan-tsoratra."
+      },
+      "inclusion": {
+        "title": "Fandraisan'ny Rehetra Anjara",
+        "description": "« Manaraka ny marefo indrindra »"
+      }
+    },
+    "history": {
+      "label": "Dingana nodiavina",
+      "title": "Ny Tantaranay",
+      "paragraphs": [
+        "Ny Projet Fianarantsoa dia nanomboka tamin'ny taona 1998, tany amin'ny faritra atsimo, tao Ambalavao, tamin'ny endrika hetsika nataon'olona iray. Vetivety dia niitatra nianavaratra izany tamin'ny taona 2001 ary avy eo tamin'ny taona 2003, ka nanomboka ny fivoarana mitohy. Tamin'ny taona 2009, mba hanohanana sy handaminana izany fomba fiasa izany, dia natsangana ny Association Tsinjo Aina Betsileo. Taona vitsivitsy tatỳ aoriana, tamin'ny volana desambra 2016, dia nivoatra ho ONG TSINJO AINA Fianarantsoa izany.",
+        "Ankehitriny, ny fikambanana dia manohana mivantana mpisitraka manodidina ny 25 000, ka vehivavy ny 11 800 amin'ireo, ary mahatratra olona fanampiny mihoatra ny 58 400 ny fiantraikany ankolaka. Ny iraka tanterahiny dia ny fanatsarana ny fari-piainana sy ny fanamafisana ny fahaleovantenan'ny vondrom-piarahamonina eo an-toerana, indrindra ny vehivavy, amin'ny alalan'ny tetikasa ara-tsosialy, ara-toekarena ary ara-tontolo iainana.",
+        "Ny fomba fiasa ampiharina dia mifototra amin'ny fanetsehana ny ezaka iombonan'ny fiarahamonina: famporisihana ireo vondrona hamolavola sy hitantana ny hetsika fampandrosoana maharitra ataony manokana. Miasa ihany koa ny ONG mba hamelomana indray ny firaisankina eo amin'ny fiarahamonina, izay soatoavina miorim-paka lalina ao amin'ny tantaran'ny Malagasy, saingy nihena tsikelikely. Manome lanja ny fanamafisana ny fahaiza-manao, ny fahazoana fahaiza-manao vaovao ary ny fanentanana izy, mba hampiroboroboana fampandrosoana sady maharitra no mahaleo tena."
+      ]
+    },
+    "foundations": "Ny Fototra Iorenanay",
+    "vision": {
+      "title": "Vina :",
+      "description": "Hahatonga ny mpisitraka tsirairay ho olom-pirenena mandray andraikitra, mitantana ny fampandrosoany manokana ary miaina amim-pirindrana ao anatin'ny fiarahamonina ara-drariny."
+    },
+    "mission": {
+      "title": "Iraka :",
+      "description": "Miasa ho amin'ny fampandrosoana maharitra ny maha-olona, ny fampandrosoan'ny vondrom-piarahamonina ny tenany ary ny fiarovana ny tontolo iainana."
+    },
+    "values": {
+      "title": "Ny soatoavinay :",
+      "description": "Ny asa ataonay dia tarihin'ny fampandrosoana amin'ny alalan'ny ezaka avy amin'ny tena, ny finiavana tsy hamela na iza na iza ho tavela ary ny fomba fiasa hentitra tsy misy fanavakavahana."
+    },
+    "cta": {
+      "label": "Fanoloran-tena",
+      "title": "« Ezaka avy amin'ny Tena sy Firaisankina »",
+      "description": "Miaraha aminay ho amin'ny fampandrosoana maharitra ny maha-olona.",
+      "button": "Hijery ny asa ataonay"
+    }
+  },
+  "activities": {
+    "label": "Sehatra iasanay",
+    "title": "Ny Asa Ataonay",
+    "description": "Manova ny fahasahiranana ho fahaleovantena amin'ny alalan'ny ezaka avy amin'ny tena sy ny firaisankina eo amin'ny fiarahamonina.",
+    "solidarity": {
+      "title": "Vondrona Fifanampiana (GS)",
+      "subtitle": "Ny olona no ivon'ny rafitra",
+      "description": "Ny fototry ny asa ataon'ny Tsinjo Aina dia ny fananganana vondrona tsy ara-panjakana izay miray noho ny fifampitokisana.",
+      "details": "Mba hahafahana miasa amim-pahombiazana, ny Vondrona Fifanampiana (GS) tsirairay dia mandamina ny rafiny amin'ny alalan'ny fanendrena tompon'andraikitra telo: filoha, mpitam-bola ary mpitan-tsoratra, izay voafidy amin'ny fomba malalaka sy mangarahara. Tena ilaina izany fandaminana fototra izany mba hanatanterahana ireo asa manokana ao amin'ny vondrona, na dia tsy manana tombontsoa manokana aza ireo tompon'andraikitra, fa mandray andraikitra fanampiny ho tombontsoan'ny rehetra fotsiny. Ny GS dia lasa sehatra fototra ianarana ny demokrasia mivantana, izay ahafahan'ny mpikambana tsirairay maneho hevitra mandritra ny fifanakalozan-kevitra iombonana mikendry ny hahazoana marimaritra iraisana tsara amin'ny fandraisana fanapahan-kevitra. Izany fomba fiasa izany dia fehezin'ny Fitsipika Anatiny (RI), napetraka hatramin'ny nananganana ny vondrona, izay mamaritra ny safidin'ny vondrona ary mivoatra tsikelikely arakaraka ny fahamatorana sy ny fandrosoan'ny mpikambana.",
+      "points": [
+        "Firaisankina sy fifampitokisana",
+        "Fanapahan-kevitra amin'ny marimaritra iraisana",
+        "Fifandanjan'ny lahy sy ny vavy",
+        "Fitsipika mivoatra"
+      ]
+    },
+    "savings": {
+      "title": "Tahiry sy Fampindramam-bola Anatiny",
+      "subtitle": "Fiarovan-tena ara-toekarena",
+      "description": "Ny tahiry iombonana no fitaovana lehibe indrindra ahafahan'ny mpikambana miala amin'ireo mpampindram-bola mampihatra zanabola mihoa-pampana.",
+      "details": "Ny tahiry iombonana no fitaovana lehibe indrindra ho an'ny fahafahana sy ny fiarovan-tenan'ny mpikambana, izay mety ho vola na vokatra ara-pambolena toy ny vary, izay miakatra ny sandany mandritra ny fotoam-pahavaratra na vanim-potoanan'ny tsy fahampian-tsakafo. Mba hiantohana ny fandraisan'ny rehetra anjara, ny vondrona dia mampihatra ny fitsipika fototra hoe « Manaraka ny marefo indrindra », ka ampifanarahana ny tahan'ny latsakemboka mba hahafahan'ireo mpikambana tena sahirana mandray anjara mavitrika. Io tahiry io dia ahafahana manome fampindramam-bola anatiny natokana hentitra ho an'ny filàna fototra toy ny sakafo, ny fahasalamana, ny saram-pianarana ary ny fividianana masomboly, ka manolotra vahaolana mivaingana hisorohana ny fiankinana amin'ireo mpampindram-bola mampihatra zanabola mihoa-pampana. Mba hiarovana ireo marefo indrindra, ny fitantanana dia fehezin'ny fetra ambony indrindra amin'ny vola azo indramina izay miantoka ny rariny, ny fe-potoana famerenam-bola mifanaraka amin'ny zava-misy ary ny tahan'ny zanabola tsy misy na tena ambany.",
+      "points": [
+        "Tahiry amin'ny vary na vola",
+        "Ady amin'ny zanabola mihoa-pampana",
+        "Fandraisan'ny marefo anjara",
+        "Fitantanana hentitra"
+      ]
+    },
+    "agroecology": {
+      "title": "Fambolena Ara-tontolo Iainana sy Fahaleovantena",
+      "subtitle": "Mamokatra mba hahazoana sakafo ara-pahasalamana",
+      "description": "Manofana ny mpikambana momba ny fototry ny fambolena ara-tontolo iainana izahay mba hampitomboana ny famokaran'ny fianakaviana.",
+      "details": "Ny fambolena ara-tontolo iainana ao amin'ny ONG Tsinjo Aina dia mikendry ny hanova ny fahasahiranana ho fahaleovantena ara-tsakafo amin'ny alalan'ny fandraisana andraikitra mivantana amin'ny fandaniana amin'ny famokarana sy ny kalitaon'ny sakafon'ny fianakaviana. Ao anatin'izany fomba fiasa izany, ny mpikambana dia mianatra manamboatra zezika komposta sy mametraka fefy velona mba hampahavokatra sy hiarovana ny taniny amin'ny fandaniana ambany kokoa. Miompana ihany koa ny asa amin'ny fananganana tahirin-tsomboly iombonan'ny fiarahamonina sy ny fampitomboana ny fahasamihafan'ireo karazana masomboly eo an-toerana, izay ahafahan'ny tantsaha miala amin'ny fiankinana amin'ireo akora fampiasa amin'ny fambolena lafo vidy ary miantoka sakafo ara-pahasalamana sy maharitra ho an'ny ankohonany. Hamafisina izany fahaleovantena izany amin'ny alalan'ny fanofanana manokana momba ny fiovaovan'ny toetrandro sy ny fitantanana ny fianakaviana, mba hahafahan'ny mpisitraka mifehy ny famokarany mandritra ny fotoana maharitra.",
+      "points": [
+        "Komposta sy fefy velona",
+        "Fampitomboana sy fitahirizana",
+        "Fanabeazana ara-tsakafo",
+        "Fiatrehana ny fiovaovan'ny toetrandro"
+      ]
+    },
+    "networks": {
+      "title": "Tambajotra sy Fisoloana Vava",
+      "subtitle": "Feo ho an'ireo voahilikilika",
+      "description": "Ny Tambajotra Tsinjo Aina dia mampivondrona ireo GS mba hitondra ny fisoloana vava eo anivon'ny kaominina.",
+      "details": "Ny fananganana tambajotra ao anatin'ny asa ataon'ny Tsinjo Aina dia tanterahina amin'ny alalan'ireo sehatra tsy ara-panjakana eo anivon'ny Fokontany, izay ahafahan'ireo vondrona mifanakaiky mifampidinika tsy tapaka mba hanamafisana ny fahaleovantenany sy hialana amin'ny trosa. Ireo fihaonana ireo, izay mampiroborobo ny fifanakalozana sy ny fifanoroana hevitra, dia fototry ny fisoloana vava voarindra, izay idiran'ny mpikambana ao amin'ny Rafitra Ifampidinihana eo An-toerana (SLC) mba hitondrana ny fitakiany any amin'ny manampahefana. Izany hetsika iombonana izany dia ahafahana mamaritra ireo laharam-pahamehana amin'ny asa iombonana, toy ny fiarovana ny zon'ny olom-pirenena, ny fiantohana ny zon'ny fananan-tany, ny fahazoana rano fisotro madio ary ny fambolena mifanaraka amin'ny zava-misy, ka mahatonga ny tambajotra ho fitaovana tena mahomby amin'ny fanamorana ny fahazoana ireo tolotra fototra sy ny fampandrosoana eo an-toerana.",
+      "points": [
+        "Fifanoroana hevitra eo amin'ny vondrona",
+        "Fisoloana vava ataon'ny olom-pirenena",
+        "Fiantohana ny zon'ny fananan-tany",
+        "Fandinihana iarahan'ny rehetra"
+      ]
+    },
+    "programs": {
+      "label": "Fandaharanasa",
+      "title": "Sehatra Fanofanana",
+      "items": [
+        "Fitantanana Tsotra",
+        "Fambolena Ara-tontolo Iainana",
+        "Fitovian-jo eo amin'ny Lahy sy ny Vavy",
+        "Sakafo",
+        "Fisoloana Vava",
+        "Toetrandro"
+      ]
+    },
+    "cta": {
+      "label": "Fanoloran-tena",
+      "title": "Andao hanangana fahaleovantena.",
+      "description": "Ireo olona tena sahirana no kendrenay mba hanovana ny fanilikilihana ho hery iombonana.",
+      "button": "Hiara-hiasa aminay"
+    }
+  }
+}

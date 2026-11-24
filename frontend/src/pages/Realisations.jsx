@@ -1,256 +1,311 @@
 import { useEffect, useState, useCallback, useMemo } from 'react';
-import { Camera, Sparkles, MapPin, Layers, Loader2, RefreshCcw } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import { Camera, MapPin, Layers, Loader2, RefreshCcw, AlertCircle, Pause, Play } from 'lucide-react';
+import ScrollReveal from '../components/ScrollReveal';
 import api from '../api/axios';
+import { normalizeLanguage, localizeIntervention } from '../utils/localizeIntervention';
 
-const REFRESH_INTERVAL = 30000; // actualisation automatique toutes les 30 s
-const MIN_SLIDES = 8;           // nombre minimum de vignettes pour un défilement fluide
+const REFRESH_INTERVAL = 30000;
+const MIN_SLIDES = 8;
 const FALLBACK_IMAGE = "https://images.unsplash.com/photo-1531206715517-5c0ba140b2b8?q=80&w=600&fit=crop";
 
-const isPublished = (item) =>
-    item.is_published === true ||
-    item.is_published === 1 ||
-    item.is_published === '1' ||
-    item.is_published === 'true';
+const translations = {
+  fr: {
+    label: 'Galerie Visuelle', title: 'Nos Réalisations',
+    description: "Chaque image capturée ici est le témoin d'un engagement profond et d'une volonté inébranlable d'apporter un changement durable à travers nos actions de terrain.",
+    gallery: 'Galerie Panoramique', photos: 'photo(s)', scrolling: 'Défilement Continu',
+    loading: 'Chargement...', error: 'Impossible de charger les réalisations.', retry: 'Réessayer',
+    empty: 'Aucune réalisation disponible',
+    emptyDesc: "Les images publiées depuis l'espace d'administration apparaîtront ici.",
+    pause: 'Mettre en pause', play: 'Reprendre'
+  },
+  mg: {
+    label: 'Tahirin-tsary', title: 'Ny zava-bitanay',
+    description: "Ny sary tsirairay eto dia maneho ny fanoloran-tena lalina sy ny finiavana tsy mihozongozona hitondra fiovana maharitra amin'ny alalan'ny asa ataonay eny ifotony.",
+    gallery: 'Fampirantiana sary', photos: 'sary', scrolling: 'Fihodinana mitohy',
+    loading: 'Eo am-pampidirana...', error: 'Tsy afaka nampiditra ny zava-bita.', retry: 'Andramo indray',
+    empty: 'Tsy misy zava-bita azo aseho',
+    emptyDesc: "Hiseho eto ireo sary navoaka avy amin'ny sehatry ny fitantanana.",
+    pause: 'Ajanona vetivety', play: 'Tohizana'
+  },
+  en: {
+    label: 'Visual Gallery', title: 'Our Achievements',
+    description: 'Every image captured here bears witness to a deep commitment and an unwavering determination to bring about lasting change through our actions in the field.',
+    gallery: 'Panoramic Gallery', photos: 'photo(s)', scrolling: 'Continuous Scrolling',
+    loading: 'Loading...', error: 'Unable to load achievements.', retry: 'Try again',
+    empty: 'No achievements available',
+    emptyDesc: 'Images published from the administration area will appear here.',
+    pause: 'Pause', play: 'Resume'
+  },
+  it: {
+    label: 'Galleria Visiva', title: 'I nostri risultati',
+    description: 'Ogni immagine qui catturata testimonia un impegno profondo e una volontà incrollabile di apportare un cambiamento duraturo attraverso le nostre azioni sul campo.',
+    gallery: 'Galleria Panoramica', photos: 'foto', scrolling: 'Scorrimento Continuo',
+    loading: 'Caricamento...', error: 'Impossibile caricare i risultati.', retry: 'Riprova',
+    empty: 'Nessun risultato disponibile',
+    emptyDesc: "Le immagini pubblicate dall'area di amministrazione appariranno qui.",
+    pause: 'Metti in pausa', play: 'Riprendi'
+  }
+};
 
-// Récupère TOUTES les images d'une intervention, quel que soit le format du backend :
-// tableau, JSON, liste séparée par des virgules, ou image_url (champ enregistré par l'admin)
-const getImages = (intervention) => {
-    let list = [];
+const isPublished = item => [true, 1, '1', 'true'].includes(item.is_published);
+
+const parseImages = value => {
+  if (Array.isArray(value)) return value;
+  if (typeof value !== 'string' || !value.trim()) return [];
+  const image = value.trim();
+
+  try {
+    if (image.startsWith('[')) {
+      const parsed = JSON.parse(image);
+      return Array.isArray(parsed) ? parsed : [image];
+    }
+    if (image.includes(',') && !image.startsWith('data:')) return image.split(',').map(item => item.trim());
+    return [image];
+  } catch {
+    return [image];
+  }
+};
+
+const getImages = intervention => [...new Set([
+  ...parseImages(intervention.image),
+  ...parseImages(intervention.image_url)
+].filter(item => typeof item === 'string' && item.trim()))];
+
+function PhotoCard({ item }) {
+  const [failed, setFailed] = useState(false);
+
+  return (
+    <article className="group/item relative h-full overflow-hidden rounded-[20px] bg-[#F0F5E9] shadow-[0_4px_15px_rgba(20,83,45,0.06)]">
+      <div className="relative aspect-[4/3] overflow-hidden bg-[#DCE9D3]">
+        <img src={failed ? FALLBACK_IMAGE : item.url} alt={item.title || ''} loading="lazy"
+          onError={() => setFailed(true)}
+          className="h-full w-full object-contain transition-transform duration-700 motion-safe:group-hover/item:scale-[1.02]"/>
+      </div>
+
+      <div className="border-t border-[#CDDCC4] px-4 py-3">
+        <div className="mb-1.5 flex items-start gap-2 text-primary">
+          <MapPin size={16} strokeWidth={1.8} className="mt-0.5 shrink-0"/>
+          <p className="break-words text-xs font-medium sm:text-sm">{item.location || 'Madagascar'}</p>
+        </div>
+        <h3 className="break-words text-sm font-semibold leading-snug text-[#14532D] sm:text-base">
+          {item.title}
+        </h3>
+      </div>
+    </article>
+  );
+}
+
+export default function Realisations() {
+  const { i18n } = useTranslation();
+  const lang = normalizeLanguage(i18n.resolvedLanguage);
+  const tr = translations[lang] || translations.fr;
+  const [photos, setPhotos] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const [paused, setPaused] = useState(false);
+
+  const fetchRealisations = useCallback(async (silent = false, signal) => {
+    if (!silent) setLoading(true);
 
     try {
-        if (Array.isArray(intervention.image)) {
-            list = intervention.image;
-        } else if (typeof intervention.image === 'string' && intervention.image) {
-            if (intervention.image.startsWith('[')) {
-                list = JSON.parse(intervention.image);
-            } else if (intervention.image.includes(',') && !intervention.image.startsWith('data:')) {
-                list = intervention.image.split(',').map(item => item.trim());
-            } else {
-                list = [intervention.image];
-            }
-        }
-    } catch {
-        list = typeof intervention.image === 'string' ? [intervention.image] : [];
+      const response = await api.get('/interventions', { signal });
+      const all = Array.isArray(response.data) ? response.data : [];
+
+      const published = all.filter(isPublished)
+        .sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+
+      const flat = published.flatMap(intervention =>
+        getImages(intervention).map((url, idx) => ({
+          key: `${intervention.id}-${idx}`,
+          url, title: intervention.title, description: intervention.description,
+          location: intervention.location, translations: intervention.translations
+        }))
+      );
+
+      if (!signal?.aborted) {
+        setPhotos(previous => JSON.stringify(previous) === JSON.stringify(flat) ? previous : flat);
+        setError(false);
+      }
+    } catch (err) {
+      if (!signal?.aborted) {
+        console.error('Erreur chargement réalisations backend:', err);
+        if (!silent) setError(true);
+      }
+    } finally {
+      if (!signal?.aborted) setLoading(false);
     }
+  }, []);
 
-    // image_url peut contenir une URL simple ou un tableau JSON (plusieurs images)
-    if (intervention.image_url) {
-        let fromUrl = [intervention.image_url];
+  useEffect(() => {
+    const controller = new AbortController();
+    const timer = setTimeout(() => fetchRealisations(false, controller.signal), 0);
+    const interval = setInterval(() => fetchRealisations(true, controller.signal), REFRESH_INTERVAL);
 
-        try {
-            if (typeof intervention.image_url === 'string' && intervention.image_url.trim().startsWith('[')) {
-                fromUrl = JSON.parse(intervention.image_url);
-            }
-        } catch {
-            fromUrl = [intervention.image_url];
-        }
+    const refreshOnReturn = () => {
+      if (document.visibilityState === 'visible') fetchRealisations(true, controller.signal);
+    };
 
-        list = [...list, ...fromUrl];
-    }
+    document.addEventListener('visibilitychange', refreshOnReturn);
+    window.addEventListener('focus', refreshOnReturn);
 
-    // Retire les vides et les doublons
-    return [...new Set(list.filter(Boolean))];
-};
+    return () => {
+      controller.abort();
+      clearTimeout(timer);
+      clearInterval(interval);
+      document.removeEventListener('visibilitychange', refreshOnReturn);
+      window.removeEventListener('focus', refreshOnReturn);
+    };
+  }, [fetchRealisations]);
 
-const Realisations = () => {
-    const [photos, setPhotos] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(false);
+  const slides = useMemo(() => {
+    if (!photos.length) return [];
+    const repeats = Math.max(1, Math.ceil(MIN_SLIDES / photos.length));
+    const base = Array.from({ length: repeats }, () => photos).flat();
+    return [...base, ...base];
+  }, [photos]);
 
-    // silent = true : actualisation en arrière-plan, sans écran de chargement
-    const fetchRealisations = useCallback(async (silent = false) => {
-        if (!silent) setLoading(true);
+  return (
+    <section className="overflow-hidden bg-[var(--paper)] py-10 text-[#203528] md:py-14">
+      <div className="mx-auto max-w-[1680px] px-5 sm:px-8 lg:px-14">
 
-        try {
-            const response = await api.get('/interventions');
-            const all = Array.isArray(response.data) ? response.data : [];
+        {/* En-tête */}
+        <ScrollReveal className="mb-6 md:mb-8">
+          <div className="flex items-center gap-3">
+            <span className="h-[2px] w-9 rounded-full bg-primary"/>
+            <span className="text-xs font-semibold uppercase tracking-[0.18em] text-primary sm:text-sm">
+              {tr.label}
+            </span>
+          </div>
+          <h2 className="mt-3 text-3xl font-semibold leading-tight tracking-tight text-[#14532D] sm:text-4xl lg:text-5xl">
+            {tr.title}
+          </h2>
+          <p className="paragraph mt-3">{tr.description}</p>
+        </ScrollReveal>
 
-            const published = all
-                .filter(isPublished)
-                .sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
-
-            const flat = [];
-
-            published.forEach(intervention => {
-                getImages(intervention).forEach((url, idx) => {
-                    flat.push({
-                        key: `${intervention.id}-${idx}`,
-                        url,
-                        title: intervention.title,
-                        location: intervention.location
-                    });
-                });
-            });
-
-            setPhotos(flat);
-            setError(false);
-        } catch (err) {
-            console.error("Erreur chargement réalisations backend:", err);
-            // En actualisation silencieuse, on garde les photos déjà affichées
-            if (!silent) setError(true);
-        } finally {
-            setLoading(false);
-        }
-    }, []);
-
-    useEffect(() => {
-        setTimeout(() => fetchRealisations(), 0);
-
-        const interval = setInterval(() => fetchRealisations(true), REFRESH_INTERVAL);
-
-        // Mise à jour immédiate quand on revient sur l'onglet / la fenêtre
-        const refreshOnReturn = () => {
-            if (document.visibilityState === 'visible') fetchRealisations(true);
-        };
-
-        document.addEventListener('visibilitychange', refreshOnReturn);
-        window.addEventListener('focus', refreshOnReturn);
-
-        return () => {
-            clearInterval(interval);
-            document.removeEventListener('visibilitychange', refreshOnReturn);
-            window.removeEventListener('focus', refreshOnReturn);
-        };
-    }, [fetchRealisations]);
-
-    // Liste du défilement : on répète jusqu'à avoir assez de vignettes, puis on double
-    // la série pour une boucle parfaite (animation de 0 à -50 %)
-    const slides = useMemo(() => {
-        if (photos.length === 0) return [];
-
-        const repeats = Math.max(1, Math.ceil(MIN_SLIDES / photos.length));
-        const base = Array.from({ length: repeats }, () => photos).flat();
-
-        return [...base, ...base];
-    }, [photos]);
-
-    return (
-        <div className="bg-[var(--paper)] font-body text-[var(--ink)] overflow-x-hidden">
-            
-            <section className="pt-10 pb-4 md:pt-12 px-6 md:px-12 bg-[var(--paper)]">
-                <div className="max-w-7xl mx-auto text-left space-y-3">
-                    <span className="inline-flex items-center gap-2 px-4 py-1.5 bg-[var(--sky-ice)] text-[var(--sky-deep)] font-mono-label font-bold text-xs uppercase tracking-[0.2em] rounded-full border border-[var(--sky)]/25">
-                        <Sparkles size={14} /> Galerie Visuelle
-                    </span>
-                    <h1 className="text-3xl md:text-5xl font-display font-extrabold text-[var(--ink)] tracking-tight leading-[1.05]">
-                        Nos{" "}
-                        <span className="bg-gradient-to-r from-[var(--leaf)] to-[var(--sky)] bg-clip-text text-transparent">
-                            Réalisations
-                        </span>
-                    </h1>
-                    <p
-                        className="text-[var(--ink-soft)] text-sm md:text-base font-body leading-relaxed max-w-2xl pl-4"
-                        style={{ borderLeft: '4px solid var(--sky)' }}
-                    >
-                        Chaque image capturée ici est le témoin d'un engagement profond et d'une volonté inébranlable d'apporter un changement durable à travers nos actions de terrain.
-                    </p>
-                </div>
-            </section>
-
-            <section className="py-6 md:py-8 bg-[var(--paper)] relative">
-                <div className="max-w-7xl mx-auto px-6 md:px-12 mb-6 flex items-center justify-between">
-                    <div className="flex items-center gap-2.5 text-[var(--sky)] font-mono-label font-bold uppercase tracking-widest text-[10px] bg-[var(--sky-ice)] px-3.5 py-1.5 rounded-xl border border-[var(--paper-line)] shadow-sm">
-                        <Camera size={14} />
-                        <span>Galerie Panoramique{photos.length > 0 ? ` · ${photos.length} photo(s)` : ''}</span>
-                    </div>
-                    <div className="h-px flex-1 bg-[var(--paper-line)] mx-6 hidden md:block"></div>
-                    <div className="text-[var(--ink-soft)] font-mono-label text-[10px] font-semibold uppercase tracking-wider">
-                        Défilement Continu
-                    </div>
-                </div>
-
-                {loading ? (
-                    <div className="flex justify-center py-16">
-                        <div className="relative flex flex-col items-center gap-3">
-                            <Loader2 className="animate-spin text-[var(--sky)]" size={36} />
-                            <span className="text-[var(--sky)] font-mono-label font-bold text-[10px] uppercase tracking-widest">Chargement...</span>
-                        </div>
-                    </div>
-                ) : error ? (
-                    <div className="text-center py-14 bg-white rounded-[2rem] border border-dashed border-[var(--paper-line)] max-w-3xl mx-auto px-6 shadow-sm">
-                        <p className="text-[var(--ink-soft)] font-mono-label text-xs uppercase mb-4">
-                            Impossible de charger les réalisations.
-                        </p>
-
-                        <button
-                            onClick={() => fetchRealisations()}
-                            className="inline-flex items-center gap-2 bg-[var(--sky)] text-white px-6 py-3 font-mono-label font-bold uppercase text-[11px] tracking-widest hover:bg-[var(--sky-deep)] transition-colors rounded-full"
-                        >
-                            <RefreshCcw size={14} /> Réessayer
-                        </button>
-                    </div>
-                ) : slides.length > 0 ? (
-                    <div className="relative w-full overflow-hidden group py-2">
-                        <div className="absolute inset-y-0 left-0 w-24 md:w-48 z-10 bg-gradient-to-r from-[var(--paper)] to-transparent pointer-events-none"></div>
-                        <div className="absolute inset-y-0 right-0 w-24 md:w-48 z-10 bg-gradient-to-l from-[var(--paper)] to-transparent pointer-events-none"></div>
-
-                        <div className="flex w-max animate-scroll-slow group-hover:pause-animation">
-                            {slides.map((item, index) => (
-                                <div key={`${item.key}-${index}`} className="shrink-0 w-72 md:w-96 px-3">
-                                    <div className="relative h-60 md:h-72 rounded-[1.5rem] overflow-hidden border border-[var(--paper-line)] group/item bg-white transition-all duration-300 hover:border-[var(--sky)] shadow-sm">
-                                        <img 
-                                            src={item.url} 
-                                            alt={item.title} 
-                                            loading="lazy"
-                                            className="w-full h-full object-contain"
-                                            onError={(e) => { e.target.onerror = null; e.target.src = FALLBACK_IMAGE; }}
-                                        />
-                                        
-                                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent opacity-0 group-hover/item:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-5 text-left">
-                                            <div className="flex items-center gap-2 text-white/90 mb-1">
-                                                <MapPin size={14} strokeWidth={2.5} className="text-[var(--sky-bright)]" />
-                                                <p className="text-[10px] font-mono-label font-bold uppercase tracking-[0.2em]">
-                                                    {item.location || 'Madagascar'}
-                                                </p>
-                                            </div>
-                                            <h3 className="text-white text-sm md:text-base font-display font-bold leading-snug">
-                                                {item.title}
-                                            </h3>
-                                        </div>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                ) : (
-                    <div className="text-center py-16 bg-white rounded-[2rem] border border-dashed border-[var(--paper-line)] max-w-5xl mx-auto px-6 shadow-sm">
-                        <div className="bg-[var(--paper)] w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-3 border border-[var(--paper-line)]">
-                            <Layers className="text-[var(--ink-soft)]" size={22} />
-                        </div>
-                        <h3 className="text-lg font-display font-extrabold text-[var(--ink)] mb-1">Aucune réalisation disponible</h3>
-                        <p className="text-[var(--ink-soft)] font-mono-label text-[11px] uppercase">Les images publiées depuis l'espace d'administration apparaîtront ici.</p>
-                    </div>
+        {/* En-tête de la galerie */}
+        <ScrollReveal direction="up" className="mb-4">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary text-white">
+                <Camera size={22} strokeWidth={1.8}/>
+              </span>
+              <div>
+                <h3 className="text-base font-semibold text-[#14532D] sm:text-lg">{tr.gallery}</h3>
+                {photos.length > 0 && (
+                  <p className="text-sm text-[#374151]">{photos.length} {tr.photos}</p>
                 )}
-            </section>
+              </div>
+            </div>
 
-            <style>{`
-                @keyframes scroll-slow {
-                    0% { transform: translateX(0); }
-                    100% { transform: translateX(-50%); }
-                }
+            <div className="hidden h-px flex-1 bg-[#CDDCC4] sm:block"/>
 
-                .animate-scroll-slow {
-                    animation: scroll-slow 80s linear infinite;
-                }
+            <div className="flex items-center gap-3">
+              <span className="hidden text-xs font-medium uppercase tracking-wide text-[#14532D] sm:block">
+                {tr.scrolling}
+              </span>
+              {slides.length > 0 && (
+                <button type="button" onClick={() => setPaused(value => !value)}
+                  title={paused ? tr.play : tr.pause} aria-label={paused ? tr.play : tr.pause}
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#DCE9D3] text-primary transition-colors hover:bg-primary hover:text-white">
+                  {paused ? <Play size={19}/> : <Pause size={19}/>}
+                </button>
+              )}
+            </div>
+          </div>
+        </ScrollReveal>
 
-                .pause-animation:hover {
-                    animation-play-state: paused;
-                }
+        {/* Chargement */}
+        {loading ? (
+          <div role="status" className="flex flex-col items-center gap-3 rounded-[24px] bg-[#F0F5E9] py-9">
+            <Loader2 size={32} className="text-primary motion-safe:animate-spin"/>
+            <span className="text-sm font-medium text-[#374151]">{tr.loading}</span>
+          </div>
 
-                @media (max-width: 768px) {
-                    .animate-scroll-slow {
-                        animation-duration: 50s;
-                    }
-                }
+        ) : error ? (
 
-                @media (prefers-reduced-motion: reduce) {
-                    .animate-scroll-slow {
-                        animation: none;
-                    }
-                }
-            `}</style>
-        </div>
-    );
-};
+          /* Erreur */
+          <ScrollReveal>
+            <div role="alert" className="flex flex-col items-center gap-3 rounded-[24px] bg-[#F0F5E9] px-5 py-8 text-center">
+              <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[#DCE9D3] text-primary">
+                <AlertCircle size={25} strokeWidth={1.8}/>
+              </span>
+              <p className="text-sm font-medium text-[#374151]">{tr.error}</p>
+              <button type="button" onClick={() => fetchRealisations()}
+                className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#14532D]">
+                <RefreshCcw size={17}/>{tr.retry}
+              </button>
+            </div>
+          </ScrollReveal>
 
-export default Realisations;
+        ) : slides.length > 0 ? (
+
+          /* Galerie panoramique */
+          <ScrollReveal direction="up">
+            <div className={`realisations-gallery relative overflow-x-auto rounded-[24px] py-2 ${paused ? 'is-paused' : ''}`}>
+
+              <div className="realisations-track flex w-max items-stretch">
+                {slides.map((item, index) => (
+                  <div key={`${item.key}-${index}`} className="w-[280px] shrink-0 px-1.5 sm:w-[320px] lg:w-[350px]">
+                    <PhotoCard item={localizeIntervention(item, lang)}/>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </ScrollReveal>
+
+        ) : (
+
+          /* Aucune réalisation */
+          <ScrollReveal>
+            <div className="flex flex-col items-center gap-2 rounded-[24px] bg-[#F0F5E9] px-5 py-8 text-center">
+              <span className="mb-2 flex h-14 w-14 items-center justify-center rounded-full bg-[#DCE9D3] text-primary">
+                <Layers size={27} strokeWidth={1.8}/>
+              </span>
+              <h3 className="text-lg font-semibold text-[#14532D]">{tr.empty}</h3>
+              <p className="text-sm leading-relaxed text-[#374151]">{tr.emptyDesc}</p>
+            </div>
+          </ScrollReveal>
+        )}
+      </div>
+
+      <style>{`
+        @keyframes realisations-scroll {
+          from { transform: translateX(0); }
+          to { transform: translateX(-50%); }
+        }
+
+        .realisations-gallery {
+          overflow-x: hidden;
+        }
+
+        .realisations-track {
+          animation: realisations-scroll 80s linear infinite;
+          will-change: transform;
+        }
+
+        .realisations-gallery:hover .realisations-track,
+        .realisations-gallery:focus-within .realisations-track,
+        .realisations-gallery.is-paused .realisations-track {
+          animation-play-state: paused;
+        }
+
+        @media (max-width: 768px) {
+          .realisations-track {
+            animation-duration: 50s;
+          }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .realisations-gallery {
+            overflow-x: auto;
+          }
+          .realisations-track {
+            animation: none;
+            will-change: auto;
+          }
+        }
+      `}</style>
+    </section>
+  );
+}

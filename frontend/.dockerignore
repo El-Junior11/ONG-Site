@@ -4,3 +4,15 @@ dist
 .gitignore
 npm-debug.log
 Dockerfile
+.dockerignore
+.env
+.env.*
+**/.env
+**/.env.*
+backups
+*.dump
+*.backup
+*.bak
+*.avant_*
+.vscode
+.idea
