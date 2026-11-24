@@ -152,147 +152,23 @@ pipeline {
           sh '''
             set -eu
 
-            ssh -o StrictHostKeyChecking=yes "$VPS_USER@$VPS_HOST" \
-              "test -f '$VPS_DIR/docker-compose.prod.yml' && \
-               test -f '$VPS_DIR/.env' && \
-               test -f '$VPS_DIR/backend/.env'"
+            REMOTE_SCRIPT="/tmp/ong-site-deploy-${BUILD_NUMBER}-${VERSION}.sh"
 
-            ssh -o StrictHostKeyChecking=yes "$VPS_USER@$VPS_HOST" \
-              "bash -s" -- "$VPS_DIR" "$VERSION" <<'REMOTE'
-set -Eeuo pipefail
+            trap 'ssh -n -o StrictHostKeyChecking=yes "$VPS_USER@$VPS_HOST" "rm -f $REMOTE_SCRIPT" || true' EXIT
 
-VPS_DIR="$1"
-VERSION="$2"
-cd "$VPS_DIR"
+            ssh -n -o StrictHostKeyChecking=yes "$VPS_USER@$VPS_HOST" "test -f '$VPS_DIR/docker-compose.prod.yml' && test -f '$VPS_DIR/.env' && test -f '$VPS_DIR/backend/.env'"
 
-COMPOSE=(docker compose -p ong-site -f docker-compose.prod.yml)
+            scp -o StrictHostKeyChecking=yes scripts/deploy-production.sh "$VPS_USER@$VPS_HOST:$REMOTE_SCRIPT"
 
-OLD_VERSION=$(sed -n 's/^VERSION=//p' .env | head -n 1)
-if [ -z "$OLD_VERSION" ]; then
-  echo "ERREUR : VERSION absente du fichier .env"
-  exit 1
-fi
+            ssh -n -o StrictHostKeyChecking=yes "$VPS_USER@$VPS_HOST" "bash '$REMOTE_SCRIPT' '$VPS_DIR' '$VERSION'"
 
-echo "Ancienne version : $OLD_VERSION"
-echo "Nouvelle version : $VERSION"
+            echo "Verification independante du deploiement..."
 
-cp -p .env ".env.backup.$OLD_VERSION"
+            ssh -n -o StrictHostKeyChecking=yes "$VPS_USER@$VPS_HOST" "docker inspect -f '{{.Config.Image}}' ong-site-backend-1" | grep -Fx "$BACK_IMAGE"
 
-rollback() {
-  echo "ERREUR : déploiement échoué, lancement du rollback"
-  sed -i "s/^VERSION=.*/VERSION=$OLD_VERSION/" .env
-  "${COMPOSE[@]}" up -d --no-deps backend frontend || true
-}
+            ssh -n -o StrictHostKeyChecking=yes "$VPS_USER@$VPS_HOST" "docker inspect -f '{{.Config.Image}}' ong-site-frontend-1" | grep -Fx "$FRONT_IMAGE"
 
-trap rollback ERR
-
-sed -i "s/^VERSION=.*/VERSION=$VERSION/" .env
-
-"${COMPOSE[@]}" config --quiet
-
-echo "Sauvegarde PostgreSQL avant migration..."
-umask 077
-BACKUP_DIR="$HOME/backups/ong-site"
-mkdir -p "$BACKUP_DIR"
-DB_BACKUP="$BACKUP_DIR/site_db_$(date +%Y%m%d_%H%M%S)_$OLD_VERSION.dump"
-
-"${COMPOSE[@]}" exec -T postgres pg_dump -U postgres -d site_db -Fc > "$DB_BACKUP"
-test -s "$DB_BACKUP"
-"${COMPOSE[@]}" exec -T postgres pg_restore --list < "$DB_BACKUP" >/dev/null
-
-echo "Sauvegarde vérifiée : $DB_BACKUP"
-
-echo "Téléchargement des nouvelles images..."
-"${COMPOSE[@]}" pull backend frontend
-
-echo "Application de la migration PostgreSQL..."
-docker run --rm --entrypoint cat   "ghcr.io/el-junior11/ong-site-backend:$VERSION"   /app/migrations/001_intervention_translations.sql |   "${COMPOSE[@]}" exec -T postgres   psql -U postgres -d site_db -v ON_ERROR_STOP=1
-
-echo "Migration PostgreSQL terminée"
-
-"${COMPOSE[@]}" up -d --no-deps backend frontend
-
-echo "Attente du démarrage du frontend..."
-
-READY=0
-for i in $(seq 1 20); do
-  if curl --fail --silent --max-time 5 \
-    http://127.0.0.1:8087/ >/dev/null 2>&1; then
-    READY=1
-    echo "Frontend prêt après tentative $i"
-    break
-  fi
-  echo "Frontend non prêt ($i/20), attente..."
-  sleep 3
-done
-
-if [ "$READY" -ne 1 ]; then
-  echo "ERREUR : frontend indisponible après 20 tentatives"
-  false
-fi
-
-echo "Vérification de l'API backend..."
-
-API_READY=0
-for i in $(seq 1 20); do
-  if curl --fail --silent --max-time 10     http://127.0.0.1:8087/api/interventions |     python3 -c 'import json,sys; assert isinstance(json.load(sys.stdin),list)'     >/dev/null 2>&1; then
-    API_READY=1
-    echo "API backend opérationnelle"
-    break
-  fi
-  sleep 3
-done
-
-if [ "$API_READY" -ne 1 ]; then
-  echo "ERREUR : API backend indisponible"
-  false
-fi
-
-echo "Vérification des conteneurs..."
-
-"${COMPOSE[@]}" ps
-
-for SERVICE in backend frontend postgres; do
-  CONTAINER=$("${COMPOSE[@]}" ps -q "$SERVICE")
-  if [ -z "$CONTAINER" ]; then
-    echo "ERREUR : conteneur $SERVICE introuvable"
-    false
-  fi
-
-  STATUS=$(docker inspect -f '{{.State.Status}}' "$CONTAINER")
-  if [ "$STATUS" != "running" ]; then
-    echo "ERREUR : $SERVICE n'est pas en cours d'exécution"
-    false
-  fi
-done
-
-POSTGRES_CONTAINER=$("${COMPOSE[@]}" ps -q postgres)
-DB_HEALTH=$(docker inspect -f '{{if .State.Health}}{{.State.Health.Status}}{{else}}unknown{{end}}' "$POSTGRES_CONTAINER")
-
-if [ "$DB_HEALTH" != "healthy" ]; then
-  echo "ERREUR : PostgreSQL non healthy ($DB_HEALTH)"
-  false
-fi
-
-echo "Vérification des versions Docker..."
-
-for SERVICE in backend frontend; do
-  CONTAINER=$("${COMPOSE[@]}" ps -q "$SERVICE")
-  IMAGE=$(docker inspect -f '{{.Config.Image}}' "$CONTAINER")
-
-  case "$IMAGE" in
-    *":$VERSION") echo "$SERVICE : version $VERSION confirmée" ;;
-    *)
-      echo "ERREUR : version incorrecte pour $SERVICE : $IMAGE"
-      false
-      ;;
-  esac
-done
-
-trap - ERR
-
-echo "SUCCESS : déploiement ONG-Site version $VERSION terminé"
-REMOTE
+            echo "Deploiement production confirme"
           '''
         }
       }
